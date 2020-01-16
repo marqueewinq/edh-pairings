@@ -1,0 +1,9 @@
+werkzeug>0.15
+django>=2.0,<3.0
+djangorestframework
+psycopg2
+Pillow>=6.0
+django_extensions
+requests
+pre-commit
+django-crispy-forms
