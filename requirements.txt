@@ -7,3 +7,4 @@ django_extensions
 requests
 pre-commit
 django-crispy-forms
+django-webpack-loader

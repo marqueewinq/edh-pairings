@@ -1,4 +1,33 @@
-Hello there
+{% extends 'pods/base.html' %}
+{% load static %}
+{% load i18n %}
 
-{{tournaments}}
+{% block body %}
+    <div class="container-lg">
+        <table class="table" id="tournament-list-table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">{% trans 'Tournament Name'%}</th>
+                <th scope="col">{% trans 'Tournament Date'%}</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for item in tournaments %}
+                    <tr>
+                        <td>{{item.id}}</td>
+                        <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
+                        <td>{{item.date_created}}</td>
+                    </tr>
+                {% empty %}
+                    No tournaments yet.
+                {% endfor %}
+            </tbody>
+        </table>
 
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/index.js'%}"></script>
+{% endblock %}

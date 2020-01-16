@@ -1,0 +1,38 @@
+{% extends 'pods/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block body %}
+    <div class="container-lg">
+        <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2><span id = "tournament_status"></span>
+        <hr>
+    </div>
+    <div class="container-lg" id = "main_registration">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id = "input-playername" placeholder="Player name" aria-label="Player name" aria-describedby="button-add">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="button-add">Add</button>
+            </div>
+        </div>
+        <table class="table" id="tournament-list-table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Player name</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="container-lg" id = "main_ongoing">
+        render_main_ongoing
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    var tournament_id = {{tournament.id}};
+</script>
+<script src="{% static 'js/detail.js'%}"></script>
+{% endblock %}
