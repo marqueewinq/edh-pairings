@@ -5,6 +5,7 @@
 {% block body %}
     <div class="container-lg">
         <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2><span id = "tournament_status"></span>
+        <button type="button" class="btn btn-outline-success" id = "next-phase-button"></button>
         <hr>
     </div>
     <div class="container-lg" id = "main_registration">
@@ -16,17 +17,30 @@
         </div>
         <table class="table" id="tournament-list-table">
             <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Player name</th>
-            </tr>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Player name</th>
+                    <th scope="col"></th>
+                </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
     </div>
     <div class="container-lg" id = "main_ongoing">
-        render_main_ongoing
+        <div class="row">
+            <div class="col-md-9">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination" id="ongoing_nav_list"></ul>
+                </nav>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary" id="button-new-round" title="New round"><i data-feather="plus"></i></button>
+            </div>
+        </div>
+
+        <div class="container" id = "main_ongoing_body">
+        </div>
     </div>
 {% endblock %}
 

@@ -13,6 +13,9 @@ urlpatterns = [
     path('api/v1/tournaments/', api_views.TournamentListCreateView.as_view(), name="api_tournaments"),
     path('api/v1/tournaments/<int:id>/', api_views.TournamentGetUpdateDeleteView.as_view(), name="api_tournament"),
     path('api/v1/tournaments/<int:id>/add/', api_views.AddPlayerNameToTournament.as_view(), name="api_tournament_add"),
-
+    path('api/v1/tournaments/<int:id>/round/', api_views.NewRoundInTournament.as_view(), name="api_tournament_round"),
+    path('api/v1/tournaments/<int:id>/submit/', api_views.SubmitResultsTournament.as_view(), name="api_tournament_submit"),
+    path('api/v1/players/', api_views.PlayerNameListCreateView.as_view(), name = "api_players"),
+    path('api/v1/players/<int:id>/', api_views.PlayerNameGetUpdateDeleteView.as_view(), name = "api_player"),
 ]
 # fmt: on

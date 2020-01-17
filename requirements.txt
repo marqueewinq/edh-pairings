@@ -8,3 +8,5 @@ requests
 pre-commit
 django-crispy-forms
 django-webpack-loader
+marshmallow
+numpy
