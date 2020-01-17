@@ -16,8 +16,6 @@ deploy_web1:
     environment:
         name: staging
     when: manual
-    only:
-        - develop
     script:
         - apk add --no-cache openssh-client bash
         - eval $(ssh-agent -s)
