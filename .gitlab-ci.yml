@@ -1,6 +1,4 @@
 image: tiangolo/docker-with-compose:latest
-services:
-    - docker:dind
 
 stages:
     - build
@@ -22,8 +20,10 @@ deploy_web1:
         - bash -c 'ssh-add <(echo "$CD_PRIVATEKEY")'
         - >
           ssh -o StrictHostKeyChecking=no root@$CD_URL "
-            /snap/bin/docker-compose build
+            cd /root/edh-pairings/;
+            git pull;
+            /snap/bin/docker-compose build;
             /snap/bin/docker-compose -f docker-compose.yml down;
-            /snap/bin/docker-compose -f docker-compose.yml up -d
+            /snap/bin/docker-compose -f docker-compose.yml up -d;
           "
 
