@@ -8,7 +8,7 @@ from pods.serializers import (
     SubmitResultsTournamentSerializer,
 )
 from pods.models import Tournament, PlayerName
-from pods.judge import new_round
+from pods.judge import new_round, player_set_all_buys
 
 
 class TournamentListCreateView(ListCreateAPIView):
@@ -52,6 +52,8 @@ class AddPlayerNameToTournament(APIView):
         if sz.is_valid():
             player_name = sz.save()
             tournament.players.add(player_name)
+            tournament.data = player_set_all_buys(tournament.data, player_name.name)
+            tournament.save()
             return Response({}, status=201)
         return Response(sz.errors, status=400)
 

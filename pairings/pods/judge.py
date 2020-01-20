@@ -45,7 +45,7 @@ def get_standings_by_round(rnd, score_per_buy=2):
     return score_by_player, pod_by_player
 
 
-def get_standings(round_list):
+def get_standings(round_list, score_per_buy=1):
     if round_list is None:
         return []
     round_list = RoundSchema(many=True).load(round_list)
@@ -53,7 +53,9 @@ def get_standings(round_list):
     total_score_by_player = {}
     score_by_player_by_round = {}
     for rnd_id, rnd in enumerate(round_list):
-        score_by_player, pod_by_player = get_standings_by_round(rnd)
+        score_by_player, pod_by_player = get_standings_by_round(
+            rnd, score_per_buy=score_per_buy
+        )
         for player_name, score in score_by_player.items():
             # add up the total scores
             if player_name not in total_score_by_player:
@@ -99,7 +101,9 @@ def update_result(round_list, player_name, round_id, score):
             if player_name == player_name_in_pod:
                 # replace None in new score with old values
                 old_score = round_list[round_id]["pods"][pod_id]["scores"][idx]
-                for idx_rplc, (new_value, old_value) in  enumerate(zip(score, old_score)):
+                for idx_rplc, (new_value, old_value) in enumerate(
+                    zip(score, old_score)
+                ):
                     if new_value is None:
                         score[idx_rplc] = old_score[idx_rplc]
                 # rewrite values
@@ -111,7 +115,7 @@ def new_round(round_list, player_name_list):
     if round_list is None:
         return new_round_random([], player_name_list=player_name_list)
     round_list = RoundSchema(many=True).load(round_list)
-    return new_round_with_history(round_list)
+    return new_round_with_history(round_list, player_name_list=player_name_list)
 
 
 def new_round_random(round_list, player_name_list):
@@ -126,13 +130,15 @@ def new_round_random(round_list, player_name_list):
                 for idx in range(0, len(player_name_list), 4)
                 if idx + 4 <= len(player_name_list)
             ],
-            "buys": list(player_name_list[-(len(player_name_list) % 4) :]) if len(player_name_list) % 4 != 0 else [],
+            "buys": list(player_name_list[-(len(player_name_list) % 4) :])
+            if len(player_name_list) % 4 != 0
+            else [],
         }
     )
     return RoundSchema(many=True).load(round_list)
 
 
-def new_round_with_history(round_list, w_first=10.0, w_second=1.0):
+def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_second=1.0):
     standings = get_standings(round_list)
     player_name_list = [item["player_name"] for item in standings]
     player_name_set = set(player_name_list)
@@ -147,6 +153,7 @@ def new_round_with_history(round_list, w_first=10.0, w_second=1.0):
         for pod_player in pod:
             player_name_set.remove(player_name_list[pod_player])
     buys = list(player_name_set)
+    
     round_list.append(
         {
             "pods": [
@@ -165,7 +172,6 @@ def new_round_with_history(round_list, w_first=10.0, w_second=1.0):
 def get_pods(score_list):
     n_players = len(score_list)
     prob_mat = get_probability_mat_for_players(score_list)
-    print(prob_mat)
     pods = []
     done = set()
     order_by = sorted(range(n_players), key=lambda x: -score_list[x])
@@ -206,3 +212,9 @@ def get_probability_mat_for_players(score_list):
     # normalize
     mat = mat / np.sum(mat, axis=1)[:, None]
     return mat
+
+
+def player_set_all_buys(round_list, player_name):
+    for idx in range(len(round_list)):
+        round_list[idx]["buys"].append(player_name)
+    return round_list

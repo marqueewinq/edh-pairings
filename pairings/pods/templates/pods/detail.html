@@ -3,6 +3,9 @@
 {% load i18n %}
 
 {% block body %}
+    <style>
+
+    </style>
     <div class="container-lg">
         <div class="d-flex flex-row align-items-center mb-1">
             <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2>
@@ -15,19 +18,14 @@
     </div>
     <hr>
     <div class="container-lg" id = "main_registration">
-        <div class="input-group mb-3">
+        <div class="input-group mb-3" id = "input-playername-div">
             <input type="text" class="form-control" id = "input-playername" placeholder="Player name" aria-label="Player name" aria-describedby="button-add">
             <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="button-add">Add</button>
+                <button class="btn btn-outline-secondary" type="button" id="button-add">Add player</button>
             </div>
         </div>
         <table class="table" id="tournament-list-table">
             <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Player name</th>
-                    <th scope="col"></th>
-                </tr>
             </thead>
             <tbody>
             </tbody>

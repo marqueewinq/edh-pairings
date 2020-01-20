@@ -115,16 +115,32 @@ function render_main_registration() {
 
     // render table with players
     render_player_list("#tournament-list-table")
+    $("#tournament-list-table").find("thead")
+        .append(
+            $("<tr>")
+            .append(
+                $("<th>")
+                .attr("scope", "col")
+                .append(feather_icon("hash"))
+            )
+            .append(
+                $("<th>")
+                .attr("scope", "col")
+                .text("Player name")
+            )
+            .append(
+                $("<th>")
+                .attr("scope", "col")
+                .html("")
+            )
+        )
 
     // render icons
     feather.replace()
-
-    // refocus
-    $("#input-playername").focus()
 }
 
 function html_score(score, pod_id) {
-    score_html = "<span title='Primary points'>" +
+    let score_html = "<span title='Primary points'>" +
         score[0] +
         "<span data-feather='chevrons-up' height=16></span>" +
         "</span>" +
@@ -133,21 +149,32 @@ function html_score(score, pod_id) {
         "<span data-feather='chevron-up' title='Tiebreaker points' height=16></span>" +
         "</span>"
     if (pod_id === undefined) {
+        // for totals
         return "<span>" + score_html + "</span>"
     }
     if (pod_id == null) {
-        return "<span>" + score_html + " (buy)</span>"
+        // buy
+        return "<span data-feather='activity' title='Buy' height=16></span> buy"
     }
-    return "<span>" + score_html + " at pod " + pod_id + "</span>"
+    return score_html
 }
 
 
 function render_main_ongoing(is_running) {
     // clear
-    $("#main_registration").css("display", "none")
     $("#main_ongoing").css("display", "block")
     $("#main_ongoing_body").empty()
     $("#ongoing_nav_list").empty()
+    $("#button-new-round").css("display", "")
+    $("#button-redo-pairings").css("display", "")
+    $("#input-playername-div").css("display", "")
+
+    // render something invisible
+    if (tournament.status == 2) {
+        $("#input-playername-div").css("display", "none")
+        $("#button-new-round").css("display", "none")
+        $("#button-redo-pairings").css("display", "none")
+    }
 
     // render next phase button
     if (tournament.status == 0) {
@@ -254,7 +281,7 @@ function render_main_ongoing(is_running) {
                     .append(
                         $('<td>').append(
                             $('<span>')
-                            .attr('class', 'text')
+                            .attr('class', 'text-justify')
                             .html(html_score(e.total_score))
                         )
                     )
@@ -263,9 +290,10 @@ function render_main_ongoing(is_running) {
                         $('<td>')
                         .append(
                             $('<span>')
-                            .attr('class', 'text')
+                            .attr('class', 'align-center')
                             .html(html_score(rnd.score, rnd.pod_id))
                         )
+                        .attr('class', 'align-center')
                     )
                 })
                 $("#table-player-list").find("tbody").append(row)
@@ -274,26 +302,69 @@ function render_main_ongoing(is_running) {
             render_player_list("#table-player-list")
         }
     } else {
+        // render round page
+
+        // render copy to clipboard button
+        // $("#main_ongoing_body").append(
+        //     $("<div>")
+        //     .attr("class", "d-flex justify-content-center")
+        //     .append(
+        //         $("<button>")
+        //         .attr("class", "btn btn-outline-primary")
+        //         .append(feather_icon("clipboard"))
+        //         .append(
+        //             $("<span>")
+        //             .text("Copy round pairing to clipboard")
+        //         )
+        //         .click(copy_round_to_clipboard())
+        //     )
+        // )
+
+        $("#main_ongoing_body").append(
+            $("<table>")
+            .attr("id", "table-player-list")
+            .attr("class", "table table-sm")
+            .append($("<thead>"))
+            .append($("<tbody>"))
+        )
+
         // render buys
-        var buys = $("<div>")
-            .attr("class", "rows")
-            .append(
-                $("<div>")
-                .attr("class", "row")
+        if (tournament.rounds.rounds[nav_index - 1].buys.length > 0) {
+            var buys_list = $("<div>")
+                .attr("class", "rows ml-4")
+
+            tournament.rounds.rounds[nav_index - 1].buys.map(function(buy) {
+                buys_list.append(
+                    $("<div>")
+                    .attr("class", "row")
+                    .text(buy)
+                )
+            })
+
+            var buys = $("<div>")
+                .attr("class", "rows")
                 .append(
                     $("<div>")
-                    .attr("class", "col-sm-12")
-                    .text("Buys")
+                    .attr("class", "row")
+                    .append(
+                        $("<div>")
+                        .attr("class", "col-sm-6 d-flex align-items-center justify-content-center")
+                        .append(feather_icon("activity"))
+                        .append(
+                            $("<strong>")
+                            .text("Buys")
+                        )
+
+                    )
+                    .append(
+                        $("<div>")
+                        .attr("class", "col-sm-6 border-left")
+                        .append(buys_list)
+                    )
                 )
-            )
-        tournament.rounds.rounds[nav_index - 1].buys.map(function(buy) {
-            buys.append(
-                $("<div>")
-                .attr("class", "col-sm-12")
-                .text(buy)
-            )
-        })
-        $("#main_ongoing_body").append(buys)
+
+            $("#main_ongoing_body").append(buys)
+        }
 
         // render pods
         pod_id = 0
@@ -303,7 +374,7 @@ function render_main_ongoing(is_running) {
                 .attr("class", "rows")
                 .append(
                     $("<div>")
-                    .attr("class", "row")
+                    .attr("class", "row mt-3 mb-1 border-bottom")
                     .append(
                         $("<div>")
                         .attr("class", "col-sm-2")
@@ -441,6 +512,7 @@ function update() {
     })
 }
 
+
 $(document).ready(function() {
     update()
 })
@@ -456,6 +528,10 @@ $("#button-add").click(function() {
         }),
         success: function(result) {
             update()
+
+            // refocus
+            $("#input-playername").val("")
+            $("#input-playername").focus()
         },
         error: function(error) {
             console.log(error.status + " " + error.statusText)
