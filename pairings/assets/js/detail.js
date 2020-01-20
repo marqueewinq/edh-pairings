@@ -124,10 +124,21 @@ function render_main_registration() {
 }
 
 function html_score(score, pod_id) {
+    score_html = "<span title='Primary points'>" +
+        score[0] +
+        "<span data-feather='chevrons-up' height=16></span>" +
+        "</span>" +
+        "<span title='Tiebreaker points'>" +
+        score[1] +
+        "<span data-feather='chevron-up' title='Tiebreaker points' height=16></span>" +
+        "</span>"
     if (pod_id === undefined) {
-        return "<span>" + score + "</span>"
+        return "<span>" + score_html + "</span>"
     }
-    return "<span>" + score + " at pod " + pod_id + "</span>"
+    if (pod_id == null) {
+        return "<span>" + score_html + " (buy)</span>"
+    }
+    return "<span>" + score_html + " at pod " + pod_id + "</span>"
 }
 
 
@@ -139,9 +150,20 @@ function render_main_ongoing(is_running) {
     $("#ongoing_nav_list").empty()
 
     // render next phase button
-    $("#next-phase-button")
-        .attr("class", "btn btn-sm btn-outline btn-outline-primary")
-        .html("Close the tournament")
+    if (tournament.status == 0) {
+        $("#next-phase-button")
+            .attr("class", "btn btn-sm btn-outline btn-outline-success ml-2")
+            .html("<span data-feather='check' height=16></span> Close the tournament")
+    } else if (tournament.status == 1) {
+        $("#next-phase-button")
+            .attr("class", "btn btn-sm btn-outline btn-outline-primary ml-2")
+            .html("<span data-feather='lock' height=16></span> Close the tournament")
+    } else {
+        $("#next-phase-button")
+            .attr("class", "btn btn-sm btn-outline btn-outline-warning ml-2")
+            .html("<span data-feather='unlock' height=16></span> Reopen tournament")
+    }
+
 
     // render tabs
     $("#ongoing_nav_list").append(
@@ -209,47 +231,74 @@ function render_main_ongoing(is_running) {
                 .html("Round " + round_id)
             )
         }
-        $("#table-player-list").find("thead").append(header_row)
-        tournament.standings.map(function(e) {
-            var row = $("<tr>").append(
-                    $('<td>').append(
-                        $('<span>')
-                        .attr('class', 'text')
-                        .text(e.player_name)
-                    )
-                )
-                .append(
-                    $('<td>').append(
-                        $('<button>')
-                        .attr("class", "btn btn-outline btn-sm")
-                        .attr("title", "Drop")
-                        .append(
-                            feather_icon("delete")
+        if (tournament.standings.length > 0) {
+            $("#table-player-list").find("thead").append(header_row)
+            tournament.standings.map(function(e) {
+                var row = $("<tr>").append(
+                        $('<td>').append(
+                            $('<span>')
+                            .attr('class', 'text')
+                            .text(e.player_name)
                         )
                     )
-                )
-                .append(
-                    $('<td>').append(
-                        $('<span>')
-                        .attr('class', 'text')
-                        .html(html_score(e.total_score))
-                    )
-                )
-            e.rounds.map(function(rnd) {
-                row.append(
-                    $('<td>')
                     .append(
-                        $('<span>')
-                        .attr('class', 'text')
-                        .html(html_score(rnd.score, rnd.pod_id))
+                        $('<td>').append(
+                            $('<button>')
+                            .attr("class", "btn btn-outline btn-sm")
+                            .attr("title", "Drop")
+                            .append(
+                                feather_icon("delete")
+                            )
+                        )
                     )
-                )
+                    .append(
+                        $('<td>').append(
+                            $('<span>')
+                            .attr('class', 'text')
+                            .html(html_score(e.total_score))
+                        )
+                    )
+                e.rounds.map(function(rnd) {
+                    row.append(
+                        $('<td>')
+                        .append(
+                            $('<span>')
+                            .attr('class', 'text')
+                            .html(html_score(rnd.score, rnd.pod_id))
+                        )
+                    )
+                })
+                $("#table-player-list").find("tbody").append(row)
             })
-            $("#table-player-list").find("tbody").append(row)
-        })
+        } else {
+            render_player_list("#table-player-list")
+        }
     } else {
+        // render buys
+        var buys = $("<div>")
+            .attr("class", "rows")
+            .append(
+                $("<div>")
+                .attr("class", "row")
+                .append(
+                    $("<div>")
+                    .attr("class", "col-sm-12")
+                    .text("Buys")
+                )
+            )
+        tournament.rounds.rounds[nav_index - 1].buys.map(function(buy) {
+            buys.append(
+                $("<div>")
+                .attr("class", "col-sm-12")
+                .text(buy)
+            )
+        })
+        $("#main_ongoing_body").append(buys)
+
         // render pods
+        pod_id = 0
         tournament.rounds.rounds[nav_index - 1].pods.map(function(pod) {
+            pod_id += 1
             var rows = $("<div>")
                 .attr("class", "rows")
                 .append(
@@ -258,7 +307,7 @@ function render_main_ongoing(is_running) {
                     .append(
                         $("<div>")
                         .attr("class", "col-sm-2")
-                        .append(feather_icon("hash"))
+                        .text("Pod #" + pod_id)
                     )
                     .append(
                         $("<div>")
@@ -268,12 +317,12 @@ function render_main_ongoing(is_running) {
                     .append(
                         $("<div>")
                         .attr("class", "col-sm-2")
-                        .text("Score")
+                        .html("Score <span data-feather='chevrons-up' height=16></span>")
                     )
                     .append(
                         $("<div>")
                         .attr("class", "col-sm-2")
-                        .text("TB")
+                        .html("TB <span data-feather='chevron-up' height=16></span>")
                     )
                 )
             for (var i = 0; i < pod.players.length; i++) {
@@ -300,13 +349,11 @@ function render_main_ongoing(is_running) {
                             .attr("type", "number")
                             .attr("class", "form-control form-control-sm")
                             .attr("data-player-name", player_name)
-                            .attr("data-player-score-0", player_score[0])
-                            .attr("data-player-score-1", player_score[1])
+                            .attr("readonly", !is_running)
                             .val(player_score[0] != null ? player_score[0] : null)
                             .change(function() {
                                 var e_new_value = $(this).val()
                                 var e_player_name = $(this).attr("data-player-name")
-                                var old_player_score_1 = $(this).attr("data-player-score-1")
                                 $.ajax({
                                     url: base_url + "api/v1/tournaments/" + tournament.id + "/submit/",
                                     method: "POST",
@@ -317,10 +364,10 @@ function render_main_ongoing(is_running) {
                                         },
                                         "tournament": tournament.id,
                                         "round_id": nav_index - 1,
-                                        "score": [e_new_value, old_player_score_1]
+                                        "score": [parseInt(e_new_value), null]
                                     }),
                                     success: function(result) {
-                                        update()
+                                        console.log("Score updated")
                                     },
                                     error: function(error) {
                                         console.log(error.status + " " + error.statusText)
@@ -338,13 +385,11 @@ function render_main_ongoing(is_running) {
                             .attr("type", "number")
                             .attr("class", "form-control form-control-sm")
                             .attr("data-player-name", player_name)
-                            .attr("data-player-score-0", player_score[0])
-                            .attr("data-player-score-1", player_score[1])
+                            .attr("readonly", !is_running)
                             .val(player_score[1] != null ? player_score[1] : null)
                             .change(function() {
                                 var e_new_value = $(this).val()
                                 var e_player_name = $(this).attr("data-player-name")
-                                var old_player_score_0 = $(this).attr("data-player-score-0")
                                 $.ajax({
                                     url: base_url + "api/v1/tournaments/" + tournament.id + "/submit/",
                                     method: "POST",
@@ -355,10 +400,10 @@ function render_main_ongoing(is_running) {
                                         },
                                         "tournament": tournament.id,
                                         "round_id": nav_index - 1,
-                                        "score": [old_player_score_0, e_new_value]
+                                        "score": [null, parseInt(e_new_value)]
                                     }),
                                     success: function(result) {
-                                        update()
+                                        console.log("Score updated")
                                     },
                                     error: function(error) {
                                         console.log(error.status + " " + error.statusText)
@@ -426,7 +471,23 @@ $("#next-phase-button").click(function() {
             method: "PUT",
             contentType: 'application/json',
             data: JSON.stringify({
-                "status": tournament.status + 1,
+                "status": parseInt(tournament.status + 1)
+            }),
+            success: function(result) {
+                update()
+            },
+            error: function(error) {
+                console.log(error.status + " " + error.statusText)
+                console.log(error)
+            }
+        })
+    } else {
+        $.ajax({
+            url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+            method: "PUT",
+            contentType: 'application/json',
+            data: JSON.stringify({
+                "status": 1,
             }),
             success: function(result) {
                 update()
@@ -443,7 +504,7 @@ $("#button-new-round").click(function() {
     $.post({
         url: base_url + "api/v1/tournaments/" + tournament.id + "/round/",
         success: function(result) {
-            nav_index = tournament.rounds.n_rounds + 1
+            nav_index = parseInt(tournament.rounds.n_rounds + 1)
             update()
         },
         error: function(error) {

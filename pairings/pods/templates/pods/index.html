@@ -4,6 +4,18 @@
 
 {% block body %}
     <div class="container-lg">
+        <h2 class="display-4">EDH Events</h2>
+        <hr>
+    </div>
+    <div class="container-lg">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id = "input-name" placeholder="New tournament name" aria-label="New tournament name" aria-describedby="button-new-tournament">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-outline-success" id = "button-new-tournament"><i data-feather="plus"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="container-lg">
         <table class="table" id="tournament-list-table">
             <thead>
             <tr>

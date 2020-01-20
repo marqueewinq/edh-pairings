@@ -1,3 +1,4 @@
+from pprint import pformat
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
@@ -24,5 +25,8 @@ class Tournament(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_NEW)
     players = models.ManyToManyField(PlayerName)
     data = JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return pformat({"name": self.name, "data": self.data})
 
 

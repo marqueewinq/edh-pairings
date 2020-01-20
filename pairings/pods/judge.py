@@ -1,5 +1,7 @@
 from marshmallow import Schema, fields, validates
+from pprint import pprint
 import numpy as np
+from scipy.spatial import distance_matrix
 
 
 class PodSchema(Schema):
@@ -21,10 +23,10 @@ class PodSchema(Schema):
 
 class RoundSchema(Schema):
     pods = fields.Nested(PodSchema, many=True)
-    buys = fields.List(fields.Str, required = False)
+    buys = fields.List(fields.Str, required=False)
 
 
-def get_standings_by_round(rnd):
+def get_standings_by_round(rnd, score_per_buy=2):
     """
         Args:
             rnd: RoundSchema
@@ -37,6 +39,9 @@ def get_standings_by_round(rnd):
         for player_name, player_score in zip(pod["players"], pod["scores"]):
             score_by_player[player_name] = player_score
             pod_by_player[player_name] = pod_id
+    for player_name in rnd["buys"]:
+        score_by_player[player_name] = [score_per_buy, 0]
+        pod_by_player[player_name] = None
     return score_by_player, pod_by_player
 
 
@@ -92,17 +97,21 @@ def update_result(round_list, player_name, round_id, score):
     for pod_id, pod in enumerate(round_list[round_id]["pods"]):
         for idx, player_name_in_pod in enumerate(pod["players"]):
             if player_name == player_name_in_pod:
-                round_list[round_id]["pods"][pod_id]["scores"][idx] = score
+                # replace None in new score with old values
+                old_score = round_list[round_id]["pods"][pod_id]["scores"][idx]
+                for idx_rplc, (new_value, old_value) in  enumerate(zip(score, old_score)):
+                    if new_value is None:
+                        score[idx_rplc] = old_score[idx_rplc]
+                # rewrite values
+                round_list[round_id]["pods"][pod_id]["scores"][idx] = map(int, score)
                 return RoundSchema(many=True).load(round_list)
 
 
 def new_round(round_list, player_name_list):
-    print(player_name_list)
     if round_list is None:
-        return new_round_random(round_list, player_name_list)
+        return new_round_random([], player_name_list=player_name_list)
     round_list = RoundSchema(many=True).load(round_list)
-    #return new_round_with_history(round_list)
-    return new_round_random(round_list, player_name_list)
+    return new_round_with_history(round_list)
 
 
 def new_round_random(round_list, player_name_list):
@@ -115,17 +124,85 @@ def new_round_random(round_list, player_name_list):
                     "scores": [[0, 0] for _ in range(4)],
                 }
                 for idx in range(0, len(player_name_list), 4)
+                if idx + 4 <= len(player_name_list)
             ],
-            "buys": list(player_name_list[:-(len(player_name_list) % 4)]),
+            "buys": list(player_name_list[-(len(player_name_list) % 4) :]) if len(player_name_list) % 4 != 0 else [],
         }
     )
     return RoundSchema(many=True).load(round_list)
 
 
-def new_round_with_history(round_list):
+def new_round_with_history(round_list, w_first=10.0, w_second=1.0):
     standings = get_standings(round_list)
     player_name_list = [item["player_name"] for item in standings]
-    score_list = [item["total_score"] for item in standings]
+    player_name_set = set(player_name_list)
+    score_list = [
+        item["total_score"][0] * w_first + item["total_score"][1] * w_second
+        for item in standings
+    ]
     n_players = len(player_name_list)
 
-    prob_mat = np.zeros(shape=(0,))
+    pods = get_pods(score_list)
+    for pod in pods:
+        for pod_player in pod:
+            player_name_set.remove(player_name_list[pod_player])
+    buys = list(player_name_set)
+    round_list.append(
+        {
+            "pods": [
+                {
+                    "players": [player_name_list[pod_player] for pod_player in pod],
+                    "scores": [[0, 0] for _ in range(4)],
+                }
+                for pod in pods
+            ],
+            "buys": buys,
+        }
+    )
+    return RoundSchema(many=True).load(round_list)
+
+
+def get_pods(score_list):
+    n_players = len(score_list)
+    prob_mat = get_probability_mat_for_players(score_list)
+    print(prob_mat)
+    pods = []
+    done = set()
+    order_by = sorted(range(n_players), key=lambda x: -score_list[x])
+    for idx_first in order_by:
+        if idx_first in done:
+            continue
+        if n_players - len(done) < 4:
+            # only buys remain
+            break
+        done.add(idx_first)
+
+        # dropping done choices
+        probs = prob_mat[idx_first]
+        for idx in done:
+            probs[idx] = 0
+        probs = probs / np.sum(probs)
+
+        idxs = np.random.choice(range(n_players), p=probs, size=(3,), replace=False)
+        for idx in idxs:
+            done.add(idx)
+
+        pods.append([idx_first] + idxs.tolist())
+
+    return pods
+
+
+def get_probability_mat_for_players(score_list):
+    n_players = len(score_list)
+    score_list = np.asarray(score_list)
+    score_list = score_list.reshape(-1, 1)
+
+    eps = 1e-3
+    mat = distance_matrix(score_list, score_list)
+    # reverse dependency
+    mat = 1.0 / (mat + eps)
+    eye = np.ones_like(mat) - np.eye(n_players)
+    mat = mat * eye
+    # normalize
+    mat = mat / np.sum(mat, axis=1)[:, None]
+    return mat

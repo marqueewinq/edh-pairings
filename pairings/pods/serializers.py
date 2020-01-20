@@ -56,6 +56,7 @@ class SubmitResultsTournamentSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         tour = validated_data["tournament"]
+        print(validated_data)
         tour.data = update_result(
             tour.data,
             player_name=validated_data["player"]["name"],

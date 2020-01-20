@@ -4,10 +4,16 @@
 
 {% block body %}
     <div class="container-lg">
-        <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2><span id = "tournament_status"></span>
-        <button type="button" class="btn btn-outline-success" id = "next-phase-button"></button>
-        <hr>
+        <div class="d-flex flex-row align-items-center mb-1">
+            <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2>
+        </div>
+        <div class="d-flex flex-row align-items-center mb-3">
+            <span class = "ml-2" id = "tournament_status"></span>
+            <button type="button" class="btn btn-sm btn-outline-success ml-2" id = "next-phase-button"></button>
+            <a href="../.." class="btn btn-sm btn-outline-secondary ml-2"><span data-feather="arrow-left" height="16"></span> Back to tournaments</a>
+        </div>
     </div>
+    <hr>
     <div class="container-lg" id = "main_registration">
         <div class="input-group mb-3">
             <input type="text" class="form-control" id = "input-playername" placeholder="Player name" aria-label="Player name" aria-describedby="button-add">
@@ -28,7 +34,7 @@
         </table>
     </div>
     <div class="container-lg" id = "main_ongoing">
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-md-9">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination" id="ongoing_nav_list"></ul>
