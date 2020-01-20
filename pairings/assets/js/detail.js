@@ -32,7 +32,7 @@ function render_main() {
 }
 
 function feather_icon(name) {
-    return $("<i>").attr("data-feather", name)
+    return $("<i>").attr("height", "16").attr("data-feather", name)
 }
 
 function render_player_list(table_id, is_render_delete_btn) {
@@ -505,6 +505,20 @@ $("#button-new-round").click(function() {
         url: base_url + "api/v1/tournaments/" + tournament.id + "/round/",
         success: function(result) {
             nav_index = parseInt(tournament.rounds.n_rounds + 1)
+            update()
+        },
+        error: function(error) {
+            console.log(error.status + " " + error.statusText)
+            console.log(error)
+        }
+    })
+})
+
+$("#button-redo-pairings").click(function() {
+    $.post({
+        url: base_url + "api/v1/tournaments/" + tournament.id + "/round/redo/",
+        success: function(result) {
+            nav_index = parseInt(tournament.rounds.n_rounds)
             update()
         },
         error: function(error) {

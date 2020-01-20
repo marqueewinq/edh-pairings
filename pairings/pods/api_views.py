@@ -84,6 +84,23 @@ class NewRoundInTournament(APIView):
         tournament.save()
         return Response(TournamentSerializer(tournament).data, status=201)
 
+class RedoLastRoundInTournament(APIView):
+    def post(self, request, id):
+        tournament = Tournament.objects.filter(id=id).first()
+        if tournament is None:
+            return Response({"error": f"ID {id} not found"}, status=404)
+        tournament.data = tournament.data[:-1]
+        tournament.data = new_round(
+            tournament.data,
+            [
+                player_name["name"]
+                for player_name in PlayerName.objects.filter(
+                    tournament=tournament
+                ).values("name")
+            ],
+        )
+        tournament.save()
+        return Response(TournamentSerializer(tournament).data, status=201)
 
 class SubmitResultsTournament(APIView):
     serializer_class = SubmitResultsTournamentSerializer

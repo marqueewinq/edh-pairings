@@ -28,5 +28,3 @@ class Tournament(models.Model):
 
     def __str__(self):
         return pformat({"name": self.name, "data": self.data})
-
-
