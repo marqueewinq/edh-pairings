@@ -4,6 +4,7 @@ x-environment:
   &shared-envvar
   - BAST_DB_HOST: db
   - BAST_DB_PORT: 5432
+  - POSTGRES_PASSWORD: "as9d8fahsmd0fmsd9"
   - IN_DOCKER: 1
 
 services:
@@ -11,7 +12,7 @@ services:
   db:
     image: postgres:10
     environment:
-      POSTGRES_PASSWORD: password
+      << : *shared-envvar
     volumes:
       - ./misc/dbdata:/var/lib/postgresql/data
     ports:
