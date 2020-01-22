@@ -24,6 +24,7 @@ class PodSchema(Schema):
 class RoundSchema(Schema):
     pods = fields.Nested(PodSchema, many=True)
     buys = fields.List(fields.Str, required=False)
+    drop = fields.List(fields.Str, required=False)
 
 
 def get_standings_by_round(rnd, score_per_buy=2):
@@ -52,10 +53,13 @@ def get_standings(round_list, score_per_buy=1):
 
     total_score_by_player = {}
     score_by_player_by_round = {}
+    drops = []
     for rnd_id, rnd in enumerate(round_list):
         score_by_player, pod_by_player = get_standings_by_round(
             rnd, score_per_buy=score_per_buy
         )
+        if "drop" in rnd and len(rnd["drop"]) != 0:
+            drops += rnd["drop"]
         for player_name, score in score_by_player.items():
             # add up the total scores
             if player_name not in total_score_by_player:
@@ -77,6 +81,7 @@ def get_standings(round_list, score_per_buy=1):
                 "player_name": player_name,
                 "total_score": total_score_by_player[player_name],
                 "rounds": score_by_player_by_round[player_name],
+                "dropped": bool(player_name in drops),
             }
         )
     return sorted(results, key=lambda item: item["total_score"], reverse=True)
@@ -133,26 +138,31 @@ def new_round_random(round_list, player_name_list):
             "buys": list(player_name_list[-(len(player_name_list) % 4) :])
             if len(player_name_list) % 4 != 0
             else [],
+            "drop": [],
         }
     )
     return RoundSchema(many=True).load(round_list)
 
 
 def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_second=1.0):
+    round_list = RoundSchema(many=True).load(round_list)
+
     standings = get_standings(round_list)
     player_name_list = [item["player_name"] for item in standings]
     player_name_set = set(player_name_list)
+    exclude_list = [idx for idx, item in enumerate(standings) if item["dropped"]]
     score_list = [
         item["total_score"][0] * w_first + item["total_score"][1] * w_second
         for item in standings
     ]
     n_players = len(player_name_list)
 
-    pods = get_pods(score_list)
+    pods = get_pods(score_list, exclude_list = exclude_list)
     for pod in pods:
         for pod_player in pod:
             player_name_set.remove(player_name_list[pod_player])
     buys = list(player_name_set)
+    drop = round_list[-1].get("drop", [])
     
     round_list.append(
         {
@@ -164,16 +174,17 @@ def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_seco
                 for pod in pods
             ],
             "buys": buys,
+            "drop": drop,
         }
     )
     return RoundSchema(many=True).load(round_list)
 
 
-def get_pods(score_list):
+def get_pods(score_list, exclude_list = []):
     n_players = len(score_list)
     prob_mat = get_probability_mat_for_players(score_list)
     pods = []
-    done = set()
+    done = set(exclude_list)
     order_by = sorted(range(n_players), key=lambda x: -score_list[x])
     for idx_first in order_by:
         if idx_first in done:
@@ -215,6 +226,20 @@ def get_probability_mat_for_players(score_list):
 
 
 def player_set_all_buys(round_list, player_name):
+    if round_list is None:
+        return
+    round_list = RoundSchema(many=True).load(round_list)
+
     for idx in range(len(round_list)):
         round_list[idx]["buys"].append(player_name)
+    return round_list
+
+def drop_player_from_tournament(round_list, player_name):
+    if round_list is None:
+        return
+    round_list = RoundSchema(many=True).load(round_list)
+
+    if "drop" not in round_list[-1]:
+        round_list[-1]["drop"] = []
+    round_list[-1]["drop"].append(player_name)
     return round_list

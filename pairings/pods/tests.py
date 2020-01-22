@@ -133,3 +133,12 @@ class LogicTest(TestCase):
         score_list = [1, 1, 1, 1, 1]
         pods = get_pods(score_list)
         assert len(pods) == 1
+
+    def test_get_pods_with_exclude(self):
+        score_list = [1, 2, 300, 400, 500, 600]
+        pods = get_pods(score_list, exclude_list = [4, 5,])
+        assert len(pods) == 1
+        assert 5 not in pods[0]
+        assert 4 not in pods[0]
+        assert 3 in pods[0]
+

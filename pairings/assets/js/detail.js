@@ -114,26 +114,31 @@ function render_main_registration() {
         .html("Begin pairings")
 
     // render table with players
-    render_player_list("#tournament-list-table")
-    $("#tournament-list-table").find("thead")
-        .append(
-            $("<tr>")
+    if (tournament.status == 0) {
+        render_player_list("#tournament-list-table")
+        $("#tournament-list-table").find("thead")
+            .empty()
             .append(
-                $("<th>")
-                .attr("scope", "col")
-                .append(feather_icon("hash"))
+                $("<tr>")
+                .append(
+                    $("<th>")
+                    .attr("scope", "col")
+                    .append(feather_icon("hash"))
+                )
+                .append(
+                    $("<th>")
+                    .attr("scope", "col")
+                    .text("Player name")
+                )
+                .append(
+                    $("<th>")
+                    .attr("scope", "col")
+                    .html("")
+                )
             )
-            .append(
-                $("<th>")
-                .attr("scope", "col")
-                .text("Player name")
-            )
-            .append(
-                $("<th>")
-                .attr("scope", "col")
-                .html("")
-            )
-        )
+    } else {
+        $("#tournament-list-table").empty()
+    }
 
     // render icons
     feather.replace()
@@ -162,6 +167,7 @@ function html_score(score, pod_id) {
 
 function render_main_ongoing(is_running) {
     // clear
+    $("#tournament-list-table").empty()
     $("#main_ongoing").css("display", "block")
     $("#main_ongoing_body").empty()
     $("#ongoing_nav_list").empty()
@@ -243,7 +249,7 @@ function render_main_ongoing(is_running) {
             .append(
                 $("<th>")
                 .attr("scope", "col")
-                .html("Actions")
+                .html("Status")
             )
             .append(
                 $("<th>")
@@ -269,13 +275,51 @@ function render_main_ongoing(is_running) {
                         )
                     )
                     .append(
-                        $('<td>').append(
-                            $('<button>')
-                            .attr("class", "btn btn-outline btn-sm")
-                            .attr("title", "Drop")
-                            .append(
-                                feather_icon("delete")
-                            )
+                        $('<td>')
+                        .append(
+                            function() {
+                                if (e.dropped) {
+                                    return $("<span>")
+                                        .attr("class", "badge badge-danger")
+                                        .text("dropped")
+                                } else {
+                                    return $("<span>")
+                                        .attr("class", "badge badge-success")
+                                        .text("active")
+                                }
+                            }()
+                        )
+                        .append(
+                            function() {
+                                if (e.dropped) {
+                                    return $("<span>")
+                                }
+                                return $('<button>')
+                                    .attr("class", "btn btn-outline btn-sm")
+                                    .attr("title", "Drop")
+                                    .append(
+                                        feather_icon("delete")
+                                    )
+                                    .click(function() {
+                                        $.ajax({
+                                            url: base_url + "api/v1/tournaments/" + tournament.id + "/drop/",
+                                            method: "POST",
+                                            contentType: 'application/json',
+                                            data: JSON.stringify({
+                                                "player": {
+                                                    "name": e.player_name
+                                                }
+                                            }),
+                                            success: function(result) {
+                                                update()
+                                            },
+                                            error: function(error) {
+                                                console.log(error.status + " " + error.statusText)
+                                                console.log(error)
+                                            }
+                                        })
+                                    })
+                            }()
                         )
                     )
                     .append(
@@ -300,6 +344,12 @@ function render_main_ongoing(is_running) {
             })
         } else {
             render_player_list("#table-player-list")
+
+            // hide Status column
+            $("#main_ongoing_body")
+                .find("table")
+                .find('td:nth-child(3),th:nth-child(3)')
+                .hide();
         }
     } else {
         // render round page
@@ -511,7 +561,6 @@ function update() {
         }
     })
 }
-
 
 $(document).ready(function() {
     update()

@@ -7,13 +7,15 @@
 
     </style>
     <div class="container-lg">
+        <div class="d-flex flex-row align-items-center mb-1 mt-3">
+            <a href="{% url 'index' %}" class="btn btn-sm btn-outline-secondary ml-2"><span data-feather="arrow-left" height="16"></span> Back to tournaments</a>
+        </div>
         <div class="d-flex flex-row align-items-center mb-1">
             <h2 class="display-4" id="tournament_name">{{tournament.name}}</h2>
         </div>
         <div class="d-flex flex-row align-items-center mb-3">
-            <span class = "ml-2" id = "tournament_status"></span>
+            <span class = "text-justify ml-2 mr-1" id = "tournament_status"></span>
             <button type="button" class="btn btn-sm btn-outline-success ml-2" id = "next-phase-button"></button>
-            <a href="{% url 'index' %}" class="btn btn-sm btn-outline-secondary ml-2"><span data-feather="arrow-left" height="16"></span> Back to tournaments</a>
         </div>
     </div>
     <hr>
@@ -34,7 +36,7 @@
     <div class="container-lg" id = "main_ongoing">
         <div class="row mb-3">
             <div class="col-md-9">
-                <nav aria-label="Page navigation example">
+                <nav>
                     <ul class="pagination" id="ongoing_nav_list"></ul>
                 </nav>
             </div>

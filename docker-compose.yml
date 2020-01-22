@@ -18,7 +18,7 @@ services:
       - "5432:5432"
 
   web:
-    image: backassist
+    image: edhpairings
     build: .
     environment:
       << : *shared-envvar

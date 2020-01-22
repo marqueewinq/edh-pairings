@@ -8,7 +8,7 @@ from pods.serializers import (
     SubmitResultsTournamentSerializer,
 )
 from pods.models import Tournament, PlayerName
-from pods.judge import new_round, player_set_all_buys
+from pods.judge import new_round, player_set_all_buys, drop_player_from_tournament
 
 
 class TournamentListCreateView(ListCreateAPIView):
@@ -115,4 +115,19 @@ class SubmitResultsTournament(APIView):
         if sz.is_valid():
             sz.save()
             return Response({}, status=201)
+        return Response(sz.errors, status=400)
+
+class DropPlayerNameFromTournament(APIView):
+    serializer_class = AddPlayerToTournamentSerializer
+
+    def post(self, request, id):
+        tournament = Tournament.objects.filter(id=id).first()
+        if tournament is None:
+            return Response({"error": f"ID {id} not found"}, status=404)
+        sz = self.serializer_class(data=request.data)
+        if sz.is_valid():
+            player_name = sz.save()
+            tournament.data = drop_player_from_tournament(tournament.data, player_name.name)
+            tournament.save()
+            return Response({}, status=204)
         return Response(sz.errors, status=400)
