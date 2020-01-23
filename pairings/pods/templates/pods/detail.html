@@ -15,17 +15,22 @@
         </div>
         <div class="d-flex flex-row align-items-center mb-3">
             <span class = "text-justify ml-2 mr-1" id = "tournament_status"></span>
+            {% if user.is_authenticated %}
             <button type="button" class="btn btn-sm btn-outline-success ml-2" id = "next-phase-button"></button>
+            {% endif %}
         </div>
+        
     </div>
     <hr>
     <div class="container-lg" id = "main_registration">
+        {% if user.is_authenticated %}
         <div class="input-group mb-3" id = "input-playername-div">
             <input type="text" class="form-control" id = "input-playername" placeholder="Player name" aria-label="Player name" aria-describedby="button-add">
             <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" id="button-add">Add player</button>
             </div>
         </div>
+        {% endif %}
         <table class="table" id="tournament-list-table">
             <thead>
             </thead>

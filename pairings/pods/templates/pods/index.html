@@ -9,10 +9,12 @@
     </div>
     <div class="container-lg">
         <div class="input-group mb-3">
+            {% if user.is_authenticated %}
             <input type="text" class="form-control" id = "input-name" placeholder="New tournament name" aria-label="New tournament name" aria-describedby="button-new-tournament">
             <div class="input-group-append">
                 <button type="button" class="btn btn-outline-success" id = "button-new-tournament"><i data-feather="plus"></i></button>
             </div>
+            {% endif %}
         </div>
     </div>
     <div class="container-lg">
@@ -32,7 +34,15 @@
                         <td>{{item.date_created}}</td>
                     </tr>
                 {% empty %}
-                    No tournaments yet.
+                    <tr>
+                        <td colspan = '3'>
+                            <center>
+                                <i data-feather="alert-circle"></i>
+                                    No tournaments yet
+                                 <i data-feather="alert-circle"></i> 
+                            </center>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

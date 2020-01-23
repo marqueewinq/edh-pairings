@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from pods.models import Tournament, PlayerName
 from pods.judge import get_standings, get_rounds, update_result
+from django.contrib.auth.models import User
 
 
 class PlayerNameSerializer(serializers.ModelSerializer):
@@ -64,3 +65,26 @@ class SubmitResultsTournamentSerializer(serializers.Serializer):
         )
         tour.save()
         return tour
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        id_field = attrs.get('username')
+
+        user = None
+
+        if '@' in id_field:
+            user = User.objects.filter(email__iexact=id_field).first()
+        elif id_field.isdigit():
+            user = User.objects.filter(phone_number=id_field).first()
+        else:
+            user = User.objects.filter(username__iexact=id_field).first()
+
+        if not user:
+            raise serializers.ValidationError(f"User {attrs} does not exist")
+
+        attrs["user"] = user
+
+        return attrs

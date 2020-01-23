@@ -1,6 +1,5 @@
 // Globals
 var tournament = null
-let base_url = "../../"
 var nav_index = 0
 
 function render_header() {
@@ -24,7 +23,7 @@ function render_main() {
     // switch
     if (tournament.status == 0) {
         render_main_registration()
-    } else if (tournament.status == 1) {
+    } else if (tournament.status == 1 && is_authenticated) {
         render_main_ongoing(true)
     } else {
         render_main_ongoing(false)
@@ -66,6 +65,9 @@ function render_player_list(table_id, is_render_delete_btn) {
                             .click(function() {
                                 $.ajax({
                                     url: base_url + "api/v1/tournaments/" + tournament.id + "/add/",
+                                    headers: {
+                                        "Authorization": "Token " + auth_token
+                                    },
                                     method: "DELETE",
                                     contentType: 'application/json',
                                     data: JSON.stringify({
@@ -141,7 +143,10 @@ function render_main_registration() {
     }
 
     // render icons
-    feather.replace()
+    feather.replace({
+        height: 16,
+        width: 16
+    })
 }
 
 function html_score(score, pod_id) {
@@ -176,7 +181,7 @@ function render_main_ongoing(is_running) {
     $("#input-playername-div").css("display", "")
 
     // render something invisible
-    if (tournament.status == 2) {
+    if (!is_running) {
         $("#input-playername-div").css("display", "none")
         $("#button-new-round").css("display", "none")
         $("#button-redo-pairings").css("display", "none")
@@ -291,7 +296,7 @@ function render_main_ongoing(is_running) {
                         )
                         .append(
                             function() {
-                                if (e.dropped) {
+                                if (e.dropped || !is_running) {
                                     return $("<span>")
                                 }
                                 return $('<button>')
@@ -303,6 +308,9 @@ function render_main_ongoing(is_running) {
                                     .click(function() {
                                         $.ajax({
                                             url: base_url + "api/v1/tournaments/" + tournament.id + "/drop/",
+                                            headers: {
+                                                "Authorization": "Token " + auth_token
+                                            },
                                             method: "POST",
                                             contentType: 'application/json',
                                             data: JSON.stringify({
@@ -477,6 +485,9 @@ function render_main_ongoing(is_running) {
                                 var e_player_name = $(this).attr("data-player-name")
                                 $.ajax({
                                     url: base_url + "api/v1/tournaments/" + tournament.id + "/submit/",
+                                    headers: {
+                                        "Authorization": "Token " + auth_token
+                                    },
                                     method: "POST",
                                     contentType: 'application/json',
                                     data: JSON.stringify({
@@ -513,6 +524,9 @@ function render_main_ongoing(is_running) {
                                 var e_player_name = $(this).attr("data-player-name")
                                 $.ajax({
                                     url: base_url + "api/v1/tournaments/" + tournament.id + "/submit/",
+                                    headers: {
+                                        "Authorization": "Token " + auth_token
+                                    },
                                     method: "POST",
                                     contentType: 'application/json',
                                     data: JSON.stringify({
@@ -540,7 +554,10 @@ function render_main_ongoing(is_running) {
         })
     }
 
-    feather.replace()
+    feather.replace({
+        height: 16,
+        width: 16
+    })
 }
 
 function render() {
@@ -551,6 +568,7 @@ function render() {
 function update() {
     $.get({
         url: base_url + "api/v1/tournaments/" + tournament_id + "/",
+        headers: get_request_headers(),
         success: function(result) {
             tournament = result
             render();
@@ -569,6 +587,7 @@ $(document).ready(function() {
 $("#button-add").click(function() {
     $.post({
         url: base_url + "api/v1/tournaments/" + tournament.id + "/add/",
+        headers: get_request_headers(),
         contentType: 'application/json',
         data: JSON.stringify({
             "player": {
@@ -593,6 +612,9 @@ $("#next-phase-button").click(function() {
     if (tournament.status < 2) {
         $.ajax({
             url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+            headers: {
+                "Authorization": "Token " + auth_token
+            },
             method: "PUT",
             contentType: 'application/json',
             data: JSON.stringify({
@@ -609,6 +631,9 @@ $("#next-phase-button").click(function() {
     } else {
         $.ajax({
             url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+            headers: {
+                "Authorization": "Token " + auth_token
+            },
             method: "PUT",
             contentType: 'application/json',
             data: JSON.stringify({
@@ -628,6 +653,7 @@ $("#next-phase-button").click(function() {
 $("#button-new-round").click(function() {
     $.post({
         url: base_url + "api/v1/tournaments/" + tournament.id + "/round/",
+        headers: get_request_headers(),
         success: function(result) {
             nav_index = parseInt(tournament.rounds.n_rounds + 1)
             update()
@@ -642,6 +668,7 @@ $("#button-new-round").click(function() {
 $("#button-redo-pairings").click(function() {
     $.post({
         url: base_url + "api/v1/tournaments/" + tournament.id + "/round/redo/",
+        headers: get_request_headers(),
         success: function(result) {
             nav_index = parseInt(tournament.rounds.n_rounds)
             update()

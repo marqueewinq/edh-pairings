@@ -1,6 +1,7 @@
-from rest_framework.views import APIView
+from rest_framework import views
+from rest_framework import permissions
+from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from pods.serializers import (
     TournamentSerializer,
     PlayerNameSerializer,
@@ -11,38 +12,43 @@ from pods.models import Tournament, PlayerName
 from pods.judge import new_round, player_set_all_buys, drop_player_from_tournament
 
 
-class TournamentListCreateView(ListCreateAPIView):
+class TournamentListCreateView(generics.ListCreateAPIView):
     serializer_class = TournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return Tournament.objects.all().order_by("-date_created")
 
 
-class TournamentGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+class TournamentGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "id"
 
     def get_queryset(self):
         return Tournament.objects.all()
 
 
-class PlayerNameListCreateView(ListCreateAPIView):
+class PlayerNameListCreateView(generics.ListCreateAPIView):
     serializer_class = PlayerNameSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return PlayerName.objects.all().order_by("-date_created")
 
 
-class PlayerNameGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+class PlayerNameGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PlayerNameSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "id"
 
     def get_queryset(self):
         return PlayerName.objects.all()
 
 
-class AddPlayerNameToTournament(APIView):
+class AddPlayerNameToTournament(views.APIView):
     serializer_class = AddPlayerToTournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()
@@ -69,7 +75,7 @@ class AddPlayerNameToTournament(APIView):
         return Response(sz.errors, status=400)
 
 
-class NewRoundInTournament(APIView):
+class NewRoundInTournament(views.APIView):
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()
         if tournament is None:
@@ -86,12 +92,15 @@ class NewRoundInTournament(APIView):
         tournament.save()
         return Response(TournamentSerializer(tournament).data, status=201)
 
-class RedoLastRoundInTournament(APIView):
+class RedoLastRoundInTournament(views.APIView):
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()
         if tournament is None:
             return Response({"error": f"ID {id} not found"}, status=404)
-        tournament.data = tournament.data[:-1]
+        if len(tournament.data) > 1:
+            tournament.data = tournament.data[:-1]
+        else:
+            tournament.data = None
         tournament.data = new_round(
             tournament.data,
             [
@@ -104,8 +113,9 @@ class RedoLastRoundInTournament(APIView):
         tournament.save()
         return Response(TournamentSerializer(tournament).data, status=201)
 
-class SubmitResultsTournament(APIView):
+class SubmitResultsTournament(views.APIView):
     serializer_class = SubmitResultsTournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()
@@ -117,8 +127,9 @@ class SubmitResultsTournament(APIView):
             return Response({}, status=201)
         return Response(sz.errors, status=400)
 
-class DropPlayerNameFromTournament(APIView):
+class DropPlayerNameFromTournament(views.APIView):
     serializer_class = AddPlayerToTournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()

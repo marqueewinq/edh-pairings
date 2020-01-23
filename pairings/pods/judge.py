@@ -162,7 +162,7 @@ def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_seco
         for pod_player in pod:
             player_name_set.remove(player_name_list[pod_player])
     buys = list(player_name_set)
-    drop = round_list[-1].get("drop", [])
+    drop = round_list[-1].get("drop", []) if len(round_list) > 0 else []
     
     round_list.append(
         {
