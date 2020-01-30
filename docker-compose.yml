@@ -4,7 +4,7 @@ x-environment:
   &shared-envvar
   - BAST_DB_HOST: db
   - BAST_DB_PORT: 5432
-  - POSTGRES_PASSWORD: "as9d8fahsmd0fmsd9"
+  - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   - IN_DOCKER: 1
 
 services:
