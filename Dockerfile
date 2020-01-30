@@ -12,4 +12,4 @@ WORKDIR /code
 RUN pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
 
-COPY . /code/
+COPY ./pairings/ /code/pairings/

@@ -2,6 +2,7 @@ from marshmallow import Schema, fields, validates
 from pprint import pprint
 import numpy as np
 from scipy.spatial import distance_matrix
+from constance import config
 
 
 class PodSchema(Schema):
@@ -27,7 +28,11 @@ class RoundSchema(Schema):
     drop = fields.List(fields.Str, required=False)
 
 
-def get_standings_by_round(rnd, score_per_buy=2):
+def get_standings_by_round(
+    rnd,
+    primary_score_per_buy=config.PRIMARY_SCORE_PER_BUY,
+    secondary_score_per_buy=config.SECONDARY_SCORE_PER_BUY,
+):
     """
         Args:
             rnd: RoundSchema
@@ -41,12 +46,12 @@ def get_standings_by_round(rnd, score_per_buy=2):
             score_by_player[player_name] = player_score
             pod_by_player[player_name] = pod_id
     for player_name in rnd["buys"]:
-        score_by_player[player_name] = [score_per_buy, 0]
+        score_by_player[player_name] = [primary_score_per_buy, secondary_score_per_buy]
         pod_by_player[player_name] = None
     return score_by_player, pod_by_player
 
 
-def get_standings(round_list, score_per_buy=1):
+def get_standings(round_list):
     if round_list is None:
         return []
     round_list = RoundSchema(many=True).load(round_list)
@@ -55,9 +60,7 @@ def get_standings(round_list, score_per_buy=1):
     score_by_player_by_round = {}
     drops = []
     for rnd_id, rnd in enumerate(round_list):
-        score_by_player, pod_by_player = get_standings_by_round(
-            rnd, score_per_buy=score_per_buy
-        )
+        score_by_player, pod_by_player = get_standings_by_round(rnd)
         if "drop" in rnd and len(rnd["drop"]) != 0:
             drops += rnd["drop"]
         for player_name, score in score_by_player.items():
@@ -144,7 +147,12 @@ def new_round_random(round_list, player_name_list):
     return RoundSchema(many=True).load(round_list)
 
 
-def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_second=1.0):
+def new_round_with_history(
+    round_list,
+    player_name_list=[],
+    w_first=config.PRIMARY_WEIGHT,
+    w_second=config.SECONDARY_WEIGHT,
+):
     round_list = RoundSchema(many=True).load(round_list)
 
     standings = get_standings(round_list)

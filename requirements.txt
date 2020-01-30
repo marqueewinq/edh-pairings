@@ -13,3 +13,4 @@ django-rest-auth
 marshmallow
 numpy
 scipy
+django-constance[database]

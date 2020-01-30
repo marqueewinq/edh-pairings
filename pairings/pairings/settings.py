@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_auth",
+    "constance.backends.database",
+    "constance",
     "pods",
 ]
 
@@ -130,12 +132,24 @@ STATICFILES_DIRS = (
 )
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication"
     ]
 }
 
-REST_AUTH_SERIALIZERS = {
-    'LOGIN_SERIALIZER': 'pods.serializers.LoginSerializer',
+REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "pods.serializers.LoginSerializer"}
+
+
+CONSTANCE_CONFIG = {
+    "PRIMARY_SCORE_PER_BUY": (1, "Primary score assigned per player buy"),
+    "SECONDARY_SCORE_PER_BUY": (0, "Secondary score assigned per player buy"),
+    "PRIMARY_WEIGHT": (10.0, "Weight of primary score in pairing algorithm"),
+    "SECONDARY_WEIGHT": (1.0, "Weight of secondary score in pairing algorithm"),
 }
 
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+
+CONSTANCE_CONFIG_FIELDSETS = {
+    "Buy Options": ("PRIMARY_SCORE_PER_BUY", "SECONDARY_SCORE_PER_BUY"),
+    "Pairing algorithm config": ("PRIMARY_WEIGHT", "SECONDARY_WEIGHT"),
+}
