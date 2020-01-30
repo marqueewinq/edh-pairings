@@ -157,13 +157,13 @@ def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_seco
     ]
     n_players = len(player_name_list)
 
-    pods = get_pods(score_list, exclude_list = exclude_list)
+    pods = get_pods(score_list, exclude_list=exclude_list)
     for pod in pods:
         for pod_player in pod:
             player_name_set.remove(player_name_list[pod_player])
     buys = list(player_name_set)
     drop = round_list[-1].get("drop", []) if len(round_list) > 0 else []
-    
+
     round_list.append(
         {
             "pods": [
@@ -180,7 +180,7 @@ def new_round_with_history(round_list, player_name_list=[], w_first=10.0, w_seco
     return RoundSchema(many=True).load(round_list)
 
 
-def get_pods(score_list, exclude_list = []):
+def get_pods(score_list, exclude_list=[]):
     n_players = len(score_list)
     prob_mat = get_probability_mat_for_players(score_list)
     pods = []
@@ -234,6 +234,7 @@ def player_set_all_buys(round_list, player_name):
         round_list[idx]["buys"].append(player_name)
     return round_list
 
+
 def drop_player_from_tournament(round_list, player_name):
     if round_list is None:
         return
@@ -243,3 +244,17 @@ def drop_player_from_tournament(round_list, player_name):
         round_list[-1]["drop"] = []
     round_list[-1]["drop"].append(player_name)
     return round_list
+
+
+def redo_last_round(round_list, player_name_list):
+    if len(round_list) == 0:
+        return new_round([], player_name_list)
+
+    last_round = round_list[-1]
+    if len(round_list) > 1:
+        round_list = round_list[:-1]
+    else:
+        round_list = None
+
+    round_list[-1]["drop"] = last_round["drop"]
+    return new_round(round_list, player_name_list)
