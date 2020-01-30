@@ -9,7 +9,7 @@ from pods.serializers import (
     SubmitResultsTournamentSerializer,
 )
 from pods.models import Tournament, PlayerName
-from pods.judge import new_round, player_set_all_buys, drop_player_from_tournament
+from pods.judge import new_round, player_set_all_buys, drop_player_from_tournament, redo_last_round
 
 
 class TournamentListCreateView(generics.ListCreateAPIView):
@@ -97,11 +97,7 @@ class RedoLastRoundInTournament(views.APIView):
         tournament = Tournament.objects.filter(id=id).first()
         if tournament is None:
             return Response({"error": f"ID {id} not found"}, status=404)
-        if len(tournament.data) > 1:
-            tournament.data = tournament.data[:-1]
-        else:
-            tournament.data = None
-        tournament.data = new_round(
+        tournament.data = redo_last_round(
             tournament.data,
             [
                 player_name["name"]
