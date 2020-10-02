@@ -29,9 +29,7 @@ class RoundSchema(Schema):
 
 
 def get_standings_by_round(
-    rnd,
-    primary_score_per_buy=config.PRIMARY_SCORE_PER_BUY,
-    secondary_score_per_buy=config.SECONDARY_SCORE_PER_BUY,
+    rnd, primary_score_per_buy=None, secondary_score_per_buy=None
 ):
     """
         Args:
@@ -39,6 +37,11 @@ def get_standings_by_round(
         Returns:
             dict player_name -> array of scores
     """
+    if primary_score_per_buy is None:
+        primary_score_per_buy = config.PRIMARY_SCORE_PER_BUY
+    if secondary_score_per_buy is None:
+        secondary_score_per_buy = config.SECONDARY_SCORE_PER_BUY
+
     score_by_player = {}
     pod_by_player = {}
     for pod_id, pod in enumerate(rnd["pods"]):
@@ -148,11 +151,12 @@ def new_round_random(round_list, player_name_list):
 
 
 def new_round_with_history(
-    round_list,
-    player_name_list=[],
-    w_first=config.PRIMARY_WEIGHT,
-    w_second=config.SECONDARY_WEIGHT,
+    round_list, player_name_list=[], w_first=None, w_second=None
 ):
+    if w_first is None:
+        w_first = config.PRIMARY_WEIGHT
+    if w_second is None:
+        w_second = config.SECONDARY_WEIGHT
     round_list = RoundSchema(many=True).load(round_list)
 
     standings = get_standings(round_list)

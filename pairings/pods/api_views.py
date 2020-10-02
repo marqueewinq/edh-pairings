@@ -9,8 +9,7 @@ from pods.serializers import (
     SubmitResultsTournamentSerializer,
 )
 from pods.models import Tournament, PlayerName
-from pods.judge import new_round, player_set_all_buys, drop_player_from_tournament, redo_last_round
-
+from judge import Judge
 
 class TournamentListCreateView(generics.ListCreateAPIView):
     serializer_class = TournamentSerializer
@@ -58,7 +57,9 @@ class AddPlayerNameToTournament(views.APIView):
         if sz.is_valid():
             player_name = sz.save()
             tournament.players.add(player_name)
-            tournament.data = player_set_all_buys(tournament.data, player_name.name)
+            tournament.data = Judge().player_set_all_buys(
+                tournament.data, player_name.name
+            )
             tournament.save()
             return Response({}, status=201)
         return Response(sz.errors, status=400)
@@ -80,7 +81,7 @@ class NewRoundInTournament(views.APIView):
         tournament = Tournament.objects.filter(id=id).first()
         if tournament is None:
             return Response({"error": f"ID {id} not found"}, status=404)
-        tournament.data = new_round(
+        tournament.data = Judge().new_round(
             tournament.data,
             [
                 player_name["name"]
@@ -92,12 +93,13 @@ class NewRoundInTournament(views.APIView):
         tournament.save()
         return Response(TournamentSerializer(tournament).data, status=201)
 
+
 class RedoLastRoundInTournament(views.APIView):
     def post(self, request, id):
         tournament = Tournament.objects.filter(id=id).first()
         if tournament is None:
             return Response({"error": f"ID {id} not found"}, status=404)
-        tournament.data = redo_last_round(
+        tournament.data = Judge().redo_last_round(
             tournament.data,
             [
                 player_name["name"]
@@ -108,6 +110,7 @@ class RedoLastRoundInTournament(views.APIView):
         )
         tournament.save()
         return Response(TournamentSerializer(tournament).data, status=201)
+
 
 class SubmitResultsTournament(views.APIView):
     serializer_class = SubmitResultsTournamentSerializer
@@ -123,6 +126,7 @@ class SubmitResultsTournament(views.APIView):
             return Response({}, status=201)
         return Response(sz.errors, status=400)
 
+
 class DropPlayerNameFromTournament(views.APIView):
     serializer_class = AddPlayerToTournamentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -134,7 +138,9 @@ class DropPlayerNameFromTournament(views.APIView):
         sz = self.serializer_class(data=request.data)
         if sz.is_valid():
             player_name = sz.save()
-            tournament.data = drop_player_from_tournament(tournament.data, player_name.name)
+            tournament.data = Judge().drop_player_from_tournament(
+                tournament.data, player_name.name
+            )
             tournament.save()
             return Response({}, status=204)
         return Response(sz.errors, status=400)

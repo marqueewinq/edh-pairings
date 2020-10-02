@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from pods.models import Tournament, PlayerName
-from pods.judge import get_standings, get_rounds, update_result
+from judge import Judge
 from django.contrib.auth.models import User
 
 
@@ -18,10 +18,10 @@ class TournamentSerializer(serializers.ModelSerializer):
     rounds = serializers.SerializerMethodField()
 
     def get_standings(self, obj):
-        return get_standings(obj.data)
+        return Judge().get_standings(obj.data)
 
     def get_rounds(self, obj):
-        return get_rounds(obj.data)
+        return Judge().get_rounds(obj.data)
 
     class Meta:
         model = Tournament
@@ -57,7 +57,7 @@ class SubmitResultsTournamentSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         tour = validated_data["tournament"]
-        tour.data = update_result(
+        tour.data = Judge().update_result(
             tour.data,
             player_name=validated_data["player"]["name"],
             round_id=validated_data["round_id"],
@@ -66,16 +66,17 @@ class SubmitResultsTournamentSerializer(serializers.Serializer):
         tour.save()
         return tour
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
     def validate(self, attrs):
-        id_field = attrs.get('username')
+        id_field = attrs.get("username")
 
         user = None
 
-        if '@' in id_field:
+        if "@" in id_field:
             user = User.objects.filter(email__iexact=id_field).first()
         elif id_field.isdigit():
             user = User.objects.filter(phone_number=id_field).first()

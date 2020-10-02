@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from pods.models import Tournament, PlayerName
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from pods.judge import (
+from judge.v1.v1 import (
     new_round_random,
     get_standings,
     get_probability_mat_for_players,
@@ -19,11 +19,13 @@ from pods.judge import (
 
 class IntegrationApiTest(APITestCase):
     def setUp(self):
-        user_data = {"username":"Me", "password": "pwd"}
+        user_data = {"username": "Me", "password": "pwd"}
         self.user = User.objects.create_user(**user_data)
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(reverse("rest_login"), data = user_data, format = "json")
-        self.token = Token.objects.get(user = self.user).key
+        response = self.client.post(
+            reverse("rest_login"), data=user_data, format="json"
+        )
+        self.token = Token.objects.get(user=self.user).key
 
     def test_add_player_to_tournament(self):
         tour = Tournament.objects.create(name="t1")
@@ -33,8 +35,8 @@ class IntegrationApiTest(APITestCase):
             response = self.client.post(
                 reverse("api_tournament_add", kwargs={"id": tour.id}),
                 data,
-                headers = {"Authorization": f"Token {self.token}"},
-                format = "json",
+                headers={"Authorization": f"Token {self.token}"},
+                format="json",
             )
             assert response.status_code == 201, response.json()
             assert PlayerName.objects.filter(name="Fred").count() == 1

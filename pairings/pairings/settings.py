@@ -139,17 +139,29 @@ REST_FRAMEWORK = {
 
 REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "pods.serializers.LoginSerializer"}
 
+import judge
+
+CONSTANCE_ADDITIONAL_FIELDS = {
+    "version_select": [
+        "django.forms.fields.ChoiceField",
+        {
+            "widget": "django.forms.Select",
+            "choices": judge.get_available_version_choices(),
+        },
+    ]
+}
 
 CONSTANCE_CONFIG = {
-    "PRIMARY_SCORE_PER_BUY": (1, "Primary score assigned per player buy"),
-    "SECONDARY_SCORE_PER_BUY": (0, "Secondary score assigned per player buy"),
-    "PRIMARY_WEIGHT": (10.0, "Weight of primary score in pairing algorithm"),
-    "SECONDARY_WEIGHT": (1.0, "Weight of secondary score in pairing algorithm"),
+    "PRIMARY_SCORE_PER_BUY": (1, "Primary score assigned per player buy", int),
+    "SECONDARY_SCORE_PER_BUY": (0, "Secondary score assigned per player buy", int),
+    "PRIMARY_WEIGHT": (10.0, "Weight of primary score in pairing algorithm", float),
+    "SECONDARY_WEIGHT": (1.0, "Weight of secondary score in pairing algorithm", float),
+    "JUDGE_VERSION": ("v1", "Version of pairing algorithm", "version_select"),
 }
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG_FIELDSETS = {
     "Buy Options": ("PRIMARY_SCORE_PER_BUY", "SECONDARY_SCORE_PER_BUY"),
-    "Pairing algorithm config": ("PRIMARY_WEIGHT", "SECONDARY_WEIGHT"),
+    "Pairing algorithm config": ("JUDGE_VERSION", "PRIMARY_WEIGHT", "SECONDARY_WEIGHT"),
 }
