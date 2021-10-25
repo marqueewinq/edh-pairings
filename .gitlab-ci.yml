@@ -1,9 +1,8 @@
-image: tiangolo/docker-with-compose:latest
-
 stages:
     - deploy
 
 deploy_web1:
+    image: tiangolo/docker-with-compose:latest
     stage: deploy
     environment:
         name: staging
