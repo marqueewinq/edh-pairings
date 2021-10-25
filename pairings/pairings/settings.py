@@ -89,7 +89,7 @@ WSGI_APPLICATION = "pairings.wsgi.application"
 
 DATABASES = {
     "default": dj_database_url.parse(
-        os.getenv("DATABASE_URL", "db"),
+        os.getenv("DATABASE_URL", "sqlite://"),
         conn_max_age=os.getenv("DATABASE_CONNECTION_MAX_AGE", 600),
     )
 }

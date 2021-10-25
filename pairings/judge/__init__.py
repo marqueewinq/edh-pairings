@@ -15,8 +15,6 @@ def get_judge_class(version: ty.Optional[str] = None) -> ty.Type[AbstractJudge]:
         from constance import config
 
         version = config.JUDGE_VERSION
-        print(f"version: {version}")
-
     try:
         return judge_versions[version]
     except KeyError as e:
@@ -26,5 +24,4 @@ def get_judge_class(version: ty.Optional[str] = None) -> ty.Type[AbstractJudge]:
 
 def Judge(*args, **kwargs) -> AbstractJudge:
     klass = get_judge_class(*args, **kwargs)
-    print(klass)
     return klass()
