@@ -21,9 +21,15 @@ deploy_web1:
           "
 
 deploy_heroku:
+    image: ruby:latest
     stage: deploy
+    when: manual
     environment:
         name: heroku_staging
-    when: manual
+        url: $HEROKU_APP_HOST
+    before_script:
+        - gem install dpl
     script:
-        - git push heroku master:master
+        - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+    only:
+        - main
