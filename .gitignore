@@ -90,3 +90,4 @@ db.sqlite3
 misc/
 node_modules/
 static/
+dumps/
