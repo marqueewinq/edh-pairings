@@ -21,3 +21,10 @@ deploy_web1:
             docker-compose -f docker-compose.yml up -d;
           "
 
+deploy_heroku:
+    stage: deploy
+    environment:
+        name: heroku_staging
+    when: manual
+    script:
+        - git push heroku master:master

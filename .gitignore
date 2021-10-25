@@ -89,3 +89,4 @@ local_settings.py
 db.sqlite3
 misc/
 node_modules/
+static/

@@ -1,7 +1,7 @@
+psycopg2-binary>=2.8,<2.9
 werkzeug>0.15
 django>=2.0,<3.0
 djangorestframework
-psycopg2
 Pillow>=6.0
 django_extensions
 requests
@@ -10,8 +10,11 @@ django-crispy-forms
 django-webpack-loader
 django-base-url
 django-rest-auth
+django-cors-headers
 marshmallow
 numpy
 scipy
 django-constance[database]
 redis
+dj-database-url
+gunicorn[gevent]

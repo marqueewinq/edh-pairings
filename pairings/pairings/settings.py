@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import typing as ty
 import os
+import dj_database_url
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,9 +28,9 @@ SECRET_KEY = "j#3_&14i##xj@6(7m3%n-4zmcxc1_b4d@07ig3!8wlr_6$s2&0"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+BASE_URL = os.getenv("BASE_URL", "http://localhost/")
 
-BASE_URL = "http://localhost/"
+ALLOWED_HOSTS: ty.List[str] = [] + json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
 
 
 # Application definition
@@ -44,10 +47,12 @@ INSTALLED_APPS = [
     "rest_auth",
     "constance.backends.database",
     "constance",
+    "corsheaders",
     "pods",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -83,14 +88,10 @@ WSGI_APPLICATION = "pairings.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("BAST_DB_HOST", "db"),
-        "PORT": os.getenv("BAST_DB_PORT", 5432),
-    }
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL", "db"),
+        conn_max_age=os.getenv("DATABASE_CONNECTION_MAX_AGE", 600),
+    )
 }
 
 # Password validation
@@ -124,11 +125,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATICFILES_DIRS = (
-    os.path.join(
-        BASE_DIR, "assets"
-    ),  # We do this so that django's collectstatic copies or our bundles to the STATIC_ROOT or syncs them to whatever storage we use.
+    os.path.join(BASE_DIR, "assets"),
+    # We do this so that django's collectstatic copies or our bundles to the
+    # STATIC_ROOT or syncs them to whatever storage we use.
 )
 
 REST_FRAMEWORK = {
@@ -138,6 +140,8 @@ REST_FRAMEWORK = {
 }
 
 REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "pods.serializers.LoginSerializer"}
+
+CORS_ALLOWED_ORIGINS = json.loads(os.getenv("CORS_ALLOWED_ORIGINS", "[]"))
 
 import judge
 
