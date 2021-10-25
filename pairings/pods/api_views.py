@@ -11,12 +11,13 @@ from pods.serializers import (
 from pods.models import Tournament, PlayerName
 from judge import Judge
 
+
 class TournamentListCreateView(generics.ListCreateAPIView):
     serializer_class = TournamentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Tournament.objects.all().order_by("-date_created")
+        return Tournament.objects.all().order_by("-date_created", "-id")
 
 
 class TournamentGetUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
