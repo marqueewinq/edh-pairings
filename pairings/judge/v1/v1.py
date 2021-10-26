@@ -1,5 +1,4 @@
 from marshmallow import Schema, fields, validates
-from pprint import pprint
 import numpy as np
 from scipy.spatial import distance_matrix
 from constance import config
@@ -167,7 +166,6 @@ def new_round_with_history(
         item["total_score"][0] * w_first + item["total_score"][1] * w_second
         for item in standings
     ]
-    n_players = len(player_name_list)
 
     pods = get_pods(score_list, exclude_list=exclude_list)
     for pod in pods:

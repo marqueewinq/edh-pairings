@@ -1,4 +1,3 @@
-from pprint import pprint
 import numpy as np
 from copy import deepcopy as copy
 from django.urls import reverse
@@ -22,9 +21,7 @@ class IntegrationApiTest(APITestCase):
         user_data = {"username": "Me", "password": "pwd"}
         self.user = User.objects.create_user(**user_data)
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(
-            reverse("rest_login"), data=user_data, format="json"
-        )
+        self.client.post(reverse("rest_login"), data=user_data, format="json")
         self.token = Token.objects.get(user=self.user).key
 
     def test_add_player_to_tournament(self):

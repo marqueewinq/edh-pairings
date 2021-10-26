@@ -33,6 +33,7 @@ class Tournament(models.Model):
     def __str__(self):
         return pformat({"name": self.name, "data": self.data})
 
+
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     """

@@ -1,7 +1,5 @@
 from marshmallow import Schema, fields, validates
-from pprint import pprint
 import numpy as np
-from scipy.spatial import distance_matrix
 from constance import config
 
 
@@ -32,10 +30,10 @@ def get_standings_by_round(
     rnd, primary_score_per_buy=None, secondary_score_per_buy=None
 ):
     """
-        Args:
-            rnd: RoundSchema
-        Returns:
-            dict player_name -> array of scores
+    Args:
+        rnd: RoundSchema
+    Returns:
+        dict player_name -> array of scores
     """
     if primary_score_per_buy is None:
         primary_score_per_buy = config.PRIMARY_SCORE_PER_BUY
@@ -167,7 +165,6 @@ def new_round_with_history(
         item["total_score"][0] * w_first + item["total_score"][1] * w_second
         for item in standings
     ]
-    n_players = len(player_name_list)
 
     pods = get_pods(
         score_list,
