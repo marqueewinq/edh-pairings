@@ -27,6 +27,7 @@ test_unittest:
     before_script:
         - pip3 install -r requirements.txt
     script:
+        - export DJANGO_SECRET_KEY="abacaba"
         - python3 pairings/manage.py test pairings
 
 deploy_heroku:

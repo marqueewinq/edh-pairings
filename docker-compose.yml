@@ -3,8 +3,8 @@ version: '3.4'
 x-environment:
   &shared-envvar
   - POSTGRES_USER: "pairings"
-  - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  - DATABASE_URL: "postgresql://pairings:${POSTGRES_PASSWORD}@db:5432/postgres"
+  - POSTGRES_PASSWORD: "postgres"
+  - DATABASE_URL: "postgresql://pairings:postgres@db:5432/postgres"
 
 services:
 
@@ -24,6 +24,8 @@ services:
       << : *shared-envvar
       ALLOWED_HOSTS: '["localhost"]'
       CORS_ALLOWED_ORIGINS: '["http://localhost"]'
+      DJANGO_SECRET_KEY: 'j#3_&14i##xj@6(7m3%n-4zmcxc1_b4d@07ig3!8wlr_6$$s2&0'
+      DJANGO_DEBUG: "1"
     # Docker hack to wait until Postgres is up, then run stuff.
     command: >
       bash -c "while ! nc -w 1 -z db 5432;
@@ -35,7 +37,7 @@ services:
                sleep 1;
                done"
     ports:
-      - "80:80"
+      - "8000:80"
     volumes:
       - ./pairings:/code
     depends_on:
