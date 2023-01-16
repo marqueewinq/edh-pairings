@@ -1,5 +1,5 @@
 import abc
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 
 class Judge(abc.ABC):

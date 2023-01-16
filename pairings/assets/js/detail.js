@@ -9,13 +9,13 @@ function render_header() {
     // render status
     if (tournament.status == 0) {
         // new
-        $("#tournament_status").html("<span class = 'badge badge-light'>Open for registration</span>")
+        $("#tournament_status").html("<span class = 'badge text-bg-light'>Open for registration</span>")
     } else if (tournament.status == 1) {
         // started
-        $("#tournament_status").html("<span class = 'badge badge-success'>Running</span>")
+        $("#tournament_status").html("<span class = 'badge text-bg-success'>Running</span>")
     } else {
         // finished
-        $("#tournament_status").html("<span class = 'badge badge-primary'>Closed</span>")
+        $("#tournament_status").html("<span class = 'badge text-bg-primary'>Closed</span>")
     }
 }
 
@@ -81,6 +81,7 @@ function render_player_list(table_id, is_render_delete_btn) {
                                     error: function(error) {
                                         console.log(error.status + " " + error.statusText)
                                         console.log(error)
+                                        showAPIAlert(error.responseText)
                                     }
                                 })
                             })
@@ -285,11 +286,11 @@ function render_main_ongoing(is_running) {
                             function() {
                                 if (e.dropped) {
                                     return $("<span>")
-                                        .attr("class", "badge badge-danger")
+                                        .attr("class", "badge text-bg-danger")
                                         .text("dropped")
                                 } else {
                                     return $("<span>")
-                                        .attr("class", "badge badge-success")
+                                        .attr("class", "badge text-bg-success")
                                         .text("active")
                                 }
                             }()
@@ -324,6 +325,7 @@ function render_main_ongoing(is_running) {
                                             error: function(error) {
                                                 console.log(error.status + " " + error.statusText)
                                                 console.log(error)
+                                                showAPIAlert(error.responseText)
                                             }
                                         })
                                     })
@@ -494,7 +496,6 @@ function render_main_ongoing(is_running) {
                                         "player": {
                                             "name": e_player_name
                                         },
-                                        "tournament": tournament.id,
                                         "round_id": nav_index - 1,
                                         "score": [parseInt(e_new_value), null]
                                     }),
@@ -504,6 +505,7 @@ function render_main_ongoing(is_running) {
                                     error: function(error) {
                                         console.log(error.status + " " + error.statusText)
                                         console.log(error)
+                                        showAPIAlert(error.responseText)
                                     }
                                 })
                             })
@@ -543,6 +545,7 @@ function render_main_ongoing(is_running) {
                                     error: function(error) {
                                         console.log(error.status + " " + error.statusText)
                                         console.log(error)
+                                        showAPIAlert(error.responseText)
                                     }
                                 })
                             })
@@ -576,6 +579,7 @@ function update() {
         error: function(error) {
             console.log(error.status + " " + error.statusText)
             console.log(error)
+            showAPIAlert(error.responseText)
         }
     })
 }
@@ -604,6 +608,7 @@ $("#button-add").click(function() {
         error: function(error) {
             console.log(error.status + " " + error.statusText)
             console.log(error)
+            showAPIAlert(error.responseText)
         }
     })
 })
@@ -626,6 +631,7 @@ $("#next-phase-button").click(function() {
             error: function(error) {
                 console.log(error.status + " " + error.statusText)
                 console.log(error)
+                showAPIAlert(error.responseText)
             }
         })
     } else {
@@ -645,6 +651,7 @@ $("#next-phase-button").click(function() {
             error: function(error) {
                 console.log(error.status + " " + error.statusText)
                 console.log(error)
+                showAPIAlert(error.responseText)
             }
         })
     }
@@ -661,6 +668,7 @@ $("#button-new-round").click(function() {
         error: function(error) {
             console.log(error.status + " " + error.statusText)
             console.log(error)
+            showAPIAlert(error.responseText)
         }
     })
 })
@@ -676,6 +684,7 @@ $("#button-redo-pairings").click(function() {
         error: function(error) {
             console.log(error.status + " " + error.statusText)
             console.log(error)
+            showAPIAlert(error.responseText)
         }
     })
 })

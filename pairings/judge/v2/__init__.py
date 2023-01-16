@@ -1,14 +1,16 @@
 __version__ = "v2"
 
 from typing import List, Optional, Tuple
+
 from judge.interfaces import Judge as AbstractJudge
+
 from .v2 import (
+    drop_player_from_tournament,
+    get_rounds,
+    get_standings,
     new_round,
     player_set_all_buys,
-    drop_player_from_tournament,
     redo_last_round,
-    get_standings,
-    get_rounds,
     update_result,
 )
 

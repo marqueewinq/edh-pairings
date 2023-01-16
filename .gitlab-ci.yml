@@ -1,34 +1,27 @@
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+
+image:
+  name: docker/compose:latest
+
+services:
+  - docker:dind
+
+before_script:
+  - docker version
+  - docker-compose version
+
+
+
 stages:
     - test
     - deploy
 
-deploy_web1:
-    image: tiangolo/docker-with-compose:latest
-    stage: deploy
-    environment:
-        name: staging
-    when: manual
-    script:
-        - apk add --no-cache openssh-client bash sshpass
-        - eval $(ssh-agent -s)
-        - >
-          sshpass -p "$CD_SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@$CD_URL "
-            cd /root/edh-pairings/;
-            git pull;
-            export POSTGRES_PASSWORD=$POSTGRES_PASSWORD;
-            docker-compose build;
-            docker-compose -f docker-compose.yml down;
-            docker-compose -f docker-compose.yml up -d;
-          "
-
 test_unittest:
-    image: python:3.7
     stage: test
-    before_script:
-        - pip3 install -r requirements.txt
     script:
-        - export DJANGO_SECRET_KEY="abacaba"
-        - python3 pairings/manage.py test pairings
+        - docker-compose up --build --exit-code-from=test --abort-on-container-exit db test
 
 deploy_heroku:
     image: ruby:latest

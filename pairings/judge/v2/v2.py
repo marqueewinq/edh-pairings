@@ -1,6 +1,6 @@
-from marshmallow import Schema, fields, validates
 import numpy as np
 from constance import config
+from marshmallow import Schema, fields, validates
 
 
 class PodSchema(Schema):
@@ -276,8 +276,8 @@ def redo_last_round(round_list, player_name_list):
     last_round = round_list[-1]
     if len(round_list) > 1:
         round_list = round_list[:-1]
+        round_list[-1]["drop"] = last_round["drop"]
     else:
         round_list = None
 
-    round_list[-1]["drop"] = last_round["drop"]
     return new_round(round_list, player_name_list)

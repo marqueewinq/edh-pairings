@@ -18,3 +18,4 @@ django-constance[database]
 redis
 dj-database-url
 gunicorn[gevent]
+django-tinymce
