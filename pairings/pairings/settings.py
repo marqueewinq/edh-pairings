@@ -41,7 +41,7 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "/var/log/debug.log",
+            "filename": "./debug.log",
         },
         "console": {
             "level": "INFO",
