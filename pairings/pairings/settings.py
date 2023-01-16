@@ -34,6 +34,28 @@ BASE_URL = os.getenv("BASE_URL", "http://localhost/")
 
 ALLOWED_HOSTS: ty.List[str] = [] + json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/debug.log",
+        },
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 # Application definition
 

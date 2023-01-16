@@ -37,7 +37,7 @@ services:
                sleep 1;
                done"
     ports:
-      - "8000:80"
+      - "80:80"
     volumes:
       - ./pairings:/code
     depends_on:
