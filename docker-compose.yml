@@ -42,3 +42,24 @@ services:
       - ./pairings:/code
     depends_on:
       - db
+
+  test:
+    image: edhpairings
+    build: .
+    environment:
+      << : *shared-envvar
+      ALLOWED_HOSTS: '["localhost"]'
+      CORS_ALLOWED_ORIGINS: '["http://localhost"]'
+      DJANGO_SECRET_KEY: 'j#3_&14i##xj@6(7m3%n-4zmcxc1_b4d@07ig3!8wlr_6$$s2&0'
+      DJANGO_DEBUG: "1"
+    command: >
+      bash -c "while ! nc -w 1 -z db 5432;
+               do sleep 0.1;
+               done;
+               ./manage.py migrate;
+               ./manage.py test;
+               "
+    volumes:
+      - ./pairings:/code
+    depends_on:
+      - db

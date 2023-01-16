@@ -1,10 +1,19 @@
-{% extends 'pods/base.html' %}
+{% extends 'frontend/base.html' %}
 {% load static %}
 {% load i18n %}
 
 {% block body %}
     <div class="container-lg">
-        <h2 class="display-4">EDH Events</h2>
+        <h2 class="display-4"><img src="{% static 'favicon.png' %}" height="64"/> EDH Events</h2>
+        <button
+              type="button"
+              class="btn btn-sm"
+              id="button-show-news-modal"
+              data-bs-toggle="modal"
+              data-bs-target="#newsModal"
+            >
+              <i data-feather="rss"></i> Learn about the latest updates
+            </button>
         <hr>
     </div>
     <div class="container-lg">
@@ -23,6 +32,7 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">{% trans 'Tournament Name'%}</th>
+                <th scope="col">{% trans 'Owner'%}</th>
                 <th scope="col">{% trans 'Tournament Date'%}</th>
             </tr>
             </thead>
@@ -31,6 +41,7 @@
                     <tr>
                         <td>{{item.id}}</td>
                         <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
+                        <td>{{item.owner | default_if_none:"<i data-feather='minus'></i>"}}</td>
                         <td>{{item.date_created}}</td>
                     </tr>
                 {% empty %}

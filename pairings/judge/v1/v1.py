@@ -1,7 +1,7 @@
-from marshmallow import Schema, fields, validates
 import numpy as np
-from scipy.spatial import distance_matrix
 from constance import config
+from marshmallow import Schema, fields, validates
+from scipy.spatial import distance_matrix
 
 
 class PodSchema(Schema):
@@ -31,10 +31,10 @@ def get_standings_by_round(
     rnd, primary_score_per_buy=None, secondary_score_per_buy=None
 ):
     """
-        Args:
-            rnd: RoundSchema
-        Returns:
-            dict player_name -> array of scores
+    Args:
+        rnd: RoundSchema
+    Returns:
+        dict player_name -> array of scores
     """
     if primary_score_per_buy is None:
         primary_score_per_buy = config.PRIMARY_SCORE_PER_BUY
@@ -263,8 +263,8 @@ def redo_last_round(round_list, player_name_list):
     last_round = round_list[-1]
     if len(round_list) > 1:
         round_list = round_list[:-1]
+        round_list[-1]["drop"] = last_round["drop"]
     else:
         round_list = None
 
-    round_list[-1]["drop"] = last_round["drop"]
     return new_round(round_list, player_name_list)

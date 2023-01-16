@@ -1,7 +1,8 @@
-from rest_framework import serializers
-from pods.models import Tournament, PlayerName
-from judge import Judge
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
+from judge import Judge
+from pods.models import PlayerName, Tournament
+from rest_framework import exceptions, serializers
 
 
 class PlayerNameSerializer(serializers.ModelSerializer):
@@ -50,21 +51,9 @@ class AddPlayerToTournamentSerializer(serializers.Serializer):
 
 
 class SubmitResultsTournamentSerializer(serializers.Serializer):
-    tournament = serializers.PrimaryKeyRelatedField(queryset=Tournament.objects)
     player = PlayerNameSerializer(required=True)
     round_id = serializers.IntegerField(required=True)
     score = serializers.JSONField(required=True)
-
-    def create(self, validated_data):
-        tour = validated_data["tournament"]
-        tour.data = Judge().update_result(
-            tour.data,
-            player_name=validated_data["player"]["name"],
-            round_id=validated_data["round_id"],
-            score=validated_data["score"],
-        )
-        tour.save()
-        return tour
 
 
 class LoginSerializer(serializers.Serializer):
@@ -73,18 +62,19 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         id_field = attrs.get("username")
+        password = attrs.get("password")
 
         user = None
 
         if "@" in id_field:
             user = User.objects.filter(email__iexact=id_field).first()
-        elif id_field.isdigit():
-            user = User.objects.filter(phone_number=id_field).first()
         else:
             user = User.objects.filter(username__iexact=id_field).first()
 
-        if not user:
-            raise serializers.ValidationError(f"User {attrs} does not exist")
+        if not user or not check_password(password, user.password):
+            raise exceptions.AuthenticationFailed(
+                detail=f"User {id_field} does not exist or credentials are incorrect."
+            )
 
         attrs["user"] = user
 

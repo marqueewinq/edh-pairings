@@ -13,7 +13,8 @@ $("#button-new-tournament").click(function() {
             location.reload()
         },
         error: function(error) {
-            console.log(error)
+            console.log(error);
+            showAPIAlert(error.responseText);
         }
     })
 })

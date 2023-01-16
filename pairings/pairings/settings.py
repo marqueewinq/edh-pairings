@@ -10,10 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import typing as ty
-import os
-import dj_database_url
 import json
+import os
+import typing as ty
+
+import dj_database_url
+import judge
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,7 +50,11 @@ INSTALLED_APPS = [
     "constance.backends.database",
     "constance",
     "corsheaders",
+    "django_extensions",
+    "tinymce",
     "pods",
+    "frontend",
+    "news",
 ]
 
 MIDDLEWARE = [
@@ -112,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
@@ -143,8 +149,6 @@ REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "pods.serializers.LoginSerializer"}
 
 CORS_ALLOWED_ORIGINS = json.loads(os.getenv("CORS_ALLOWED_ORIGINS", "[]"))
 
-import judge
-
 CONSTANCE_ADDITIONAL_FIELDS = {
     "version_select": [
         "django.forms.fields.ChoiceField",
@@ -160,7 +164,7 @@ CONSTANCE_CONFIG = {
     "SECONDARY_SCORE_PER_BUY": (0, "Secondary score assigned per player buy", int),
     "PRIMARY_WEIGHT": (10.0, "Weight of primary score in pairing algorithm", float),
     "SECONDARY_WEIGHT": (1.0, "Weight of secondary score in pairing algorithm", float),
-    "JUDGE_VERSION": ("v1", "Version of pairing algorithm", "version_select"),
+    "JUDGE_VERSION": ("v2", "Version of pairing algorithm", "version_select"),
 }
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"

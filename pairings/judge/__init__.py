@@ -1,7 +1,8 @@
 import typing as ty
+
+from judge.interfaces import Judge as AbstractJudge
 from judge.v1 import Judge as Judge_v1
 from judge.v2 import Judge as Judge_v2
-from judge.interfaces import Judge as AbstractJudge
 
 judge_versions = {"v1": Judge_v1, "v2": Judge_v2}
 
