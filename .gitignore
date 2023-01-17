@@ -91,3 +91,5 @@ misc/
 node_modules/
 static/
 dumps/
+
+todo-list.txt
