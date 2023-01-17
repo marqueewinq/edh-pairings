@@ -662,7 +662,7 @@ $("#button-new-round").click(function() {
         url: base_url + "api/v1/tournaments/" + tournament.id + "/round/",
         headers: get_request_headers(),
         success: function(result) {
-            nav_index = parseInt(tournament.rounds.n_rounds + 1)
+            nav_index = parseInt(result.rounds.n_rounds)
             update()
         },
         error: function(error) {
