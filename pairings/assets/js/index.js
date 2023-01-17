@@ -10,7 +10,7 @@ $("#button-new-tournament").click(function() {
             "name": name
         }),
         success: function(result) {
-            location.reload()
+            window.location.href = "/tournaments/" + result.id + "/";
         },
         error: function(error) {
             console.log(error);
