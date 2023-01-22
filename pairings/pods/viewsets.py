@@ -67,7 +67,9 @@ class TournamentViewSet(viewsets.ModelViewSet):
     def _add_player_to_tournament(serializer, tournament):
         player_name = serializer.save()
         tournament.players.add(player_name)
-        tournament.data = Judge().player_set_all_buys(tournament.data, player_name.name)
+        tournament.data = Judge(config=tournament.judge_config).player_set_all_buys(
+            tournament.data, player_name.name
+        )
         tournament.save()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -84,9 +86,9 @@ class TournamentViewSet(viewsets.ModelViewSet):
         player_name = serializer.save()
         if not tournament.players.filter(id=player_name.id).exists():
             raise PlayerNameNotInTournamentError(player_name.name)
-        tournament.data = Judge().drop_player_from_tournament(
-            tournament.data, player_name.name
-        )
+        tournament.data = Judge(
+            config=tournament.judge_config
+        ).drop_player_from_tournament(tournament.data, player_name.name)
         tournament.save()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
@@ -97,7 +99,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
     )
     def create_new_round_in_tournament(self, request, id=None):
         tournament = self.get_object()
-        tournament.data = Judge().new_round(
+        tournament.data = Judge(config=tournament.judge_config).new_round(
             tournament.data,
             [
                 player_name["name"]
@@ -118,7 +120,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
         tournament = self.get_object()
         if tournament.data is None:
             raise exceptions.ValidationError(detail="No rounds in this tournament yet.")
-        tournament.data = Judge().redo_last_round(
+        tournament.data = Judge(config=tournament.judge_config).redo_last_round(
             tournament.data,
             [
                 player_name["name"]
@@ -150,7 +152,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
                 detail=f"Player {name} is not in tournament"
             )
 
-        tournament.data = Judge().update_result(
+        tournament.data = Judge(config=tournament.judge_config).update_result(
             tournament.data,
             player_name=player_name.name,
             round_id=serializer.validated_data["round_id"],

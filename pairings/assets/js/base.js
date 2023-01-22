@@ -53,6 +53,36 @@ $("#button-logout").click(function () {
     });
 });
 
+$("#button-send-login-link").click(function () {
+    let email = $("#input-email").val();
+    $("#button-send-login-link")
+        .removeClass("btn-outline-primary")
+        .addClass("btn-outline-warning")
+        .html("Sending...");
+    $.ajax({
+        method: "POST",
+        url: base_url + "api/v1/accounts/send-link/",
+        data: JSON.stringify({
+            email: email,
+        }),
+        headers: { "Content-type": "application/json" },
+        success: function (result) {
+            $("#button-send-login-link")
+                .removeClass("btn-outline-warning")
+                .addClass("btn-outline-success")
+                .html("<i data-feather='check'></i> Link sent!");
+            feather.replace({
+                height: 16,
+                width: 16,
+            });
+        },
+        error: function (error) {
+            console.log(error);
+            showAPIAlert(error.responseText);
+        },
+    });
+});
+
 function get_request_headers() {
     if (auth_token != null && auth_token.length > 0) {
         return {

@@ -1,66 +1,80 @@
-{% extends 'frontend/base.html' %}
-{% load static %}
-{% load i18n %}
+{% extends 'frontend/base.html' %} {% load static %} {% load i18n %}
 
+<!-- -->
 {% block body %}
-    <div class="container-lg">
-        <h2 class="display-4"><img src="{% static 'favicon.png' %}" height="64"/> EDH Events</h2>
-        <button
-              type="button"
-              class="btn btn-sm"
-              id="button-show-news-modal"
-              data-bs-toggle="modal"
-              data-bs-target="#newsModal"
+<div class="container-lg">
+    <h2 class="display-4">
+        <img src="{% static 'favicon.png' %}" height="64" /> EDH Events
+    </h2>
+    <button
+        type="button"
+        class="btn btn-sm"
+        id="button-show-news-modal"
+        data-bs-toggle="modal"
+        data-bs-target="#newsModal"
+    >
+        <i data-feather="rss"></i> Learn about the latest updates
+    </button>
+    <hr />
+</div>
+<div class="container-lg">
+    <div class="input-group mb-3">
+        {% if user.is_authenticated %}
+        <input
+            type="text"
+            class="form-control"
+            id="input-name"
+            placeholder="New tournament name"
+            aria-label="New tournament name"
+            aria-describedby="button-new-tournament"
+        />
+        <div class="input-group-append">
+            <button
+                type="button"
+                class="btn btn-outline-success"
+                id="button-new-tournament"
             >
-              <i data-feather="rss"></i> Learn about the latest updates
+                <i data-feather="plus"></i>
             </button>
-        <hr>
-    </div>
-    <div class="container-lg">
-        <div class="input-group mb-3">
-            {% if user.is_authenticated %}
-            <input type="text" class="form-control" id = "input-name" placeholder="New tournament name" aria-label="New tournament name" aria-describedby="button-new-tournament">
-            <div class="input-group-append">
-                <button type="button" class="btn btn-outline-success" id = "button-new-tournament"><i data-feather="plus"></i></button>
-            </div>
-            {% endif %}
         </div>
+        {% endif %}
     </div>
-    <div class="container-lg">
-        <table class="table" id="tournament-list-table">
-            <thead>
+</div>
+<div class="container-lg">
+    <table class="table" id="tournament-list-table">
+        <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">{% trans 'Tournament Name'%}</th>
                 <th scope="col">{% trans 'Owner'%}</th>
                 <th scope="col">{% trans 'Tournament Date'%}</th>
             </tr>
-            </thead>
-            <tbody>
-                {% for item in tournaments %}
-                    <tr>
-                        <td>{{item.id}}</td>
-                        <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
-                        <td>{{item.owner | default_if_none:"<i data-feather='minus'></i>"}}</td>
-                        <td>{{item.date_created}}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan = '3'>
-                            <center>
-                                <i data-feather="alert-circle"></i>
-                                    No tournaments yet
-                                 <i data-feather="alert-circle"></i>
-                            </center>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    </div>
-{% endblock %}
-
-{% block scripts %}
+        </thead>
+        <tbody>
+            {% for item in tournaments %}
+            <tr>
+                <td>{{item.id}}</td>
+                <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
+                <!-- prettier-ignore -->
+                <td>
+                    {{item.owner | default_if_none:"<i data-feather='minus'></i>"}}
+                </td>
+                <td>{{item.date_created}}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">
+                    <center>
+                        <i data-feather="alert-circle"></i>
+                        No tournaments yet
+                        <i data-feather="alert-circle"></i>
+                    </center>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} {% block scripts %}
 <script src="{% static 'js/index.js'%}"></script>
 {% endblock %}

@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
+from pods.schemas import JudgeSchema, TournamentSettingsSchema
 from rest_framework.authtoken.models import Token
 
 
@@ -13,6 +14,10 @@ class PlayerName(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def make_default_tournament_settings():
+    return TournamentSettingsSchema().load({})
 
 
 class Tournament(models.Model):
@@ -39,8 +44,18 @@ class Tournament(models.Model):
         blank=True,
     )
 
+    settings = JSONField(
+        blank=True,
+        null=True,
+        default=make_default_tournament_settings,
+    )
+
     def __str__(self):
         return f"{self.name} at {self.date_created}"
+
+    @property
+    def judge_config(self) -> dict:
+        return JudgeSchema().load(self.settings["judge_config"])
 
 
 @receiver(post_save, sender=User)

@@ -24,5 +24,6 @@ urlpatterns = [
     path("accounts/", include("rest_auth.urls")),
     path('', include('pods.urls')),
     path('', include('frontend.urls')),
+    path('', include('accounts.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # fmt: on

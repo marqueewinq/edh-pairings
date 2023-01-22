@@ -1,7 +1,7 @@
-from django.contrib.auth.hashers import check_password
-from django.contrib.auth.models import User
+import marshmallow as ma
 from judge import Judge
 from pods.models import PlayerName, Tournament
+from pods.schemas import TournamentSettingsSchema
 from rest_framework import exceptions, serializers
 
 
@@ -19,10 +19,10 @@ class TournamentSerializer(serializers.ModelSerializer):
     rounds = serializers.SerializerMethodField()
 
     def get_standings(self, obj):
-        return Judge().get_standings(obj.data)
+        return Judge(config=obj.judge_config).get_standings(obj.data)
 
     def get_rounds(self, obj):
-        return Judge().get_rounds(obj.data)
+        return Judge(config=obj.judge_config).get_rounds(obj.data)
 
     class Meta:
         model = Tournament
@@ -35,8 +35,17 @@ class TournamentSerializer(serializers.ModelSerializer):
             "players",
             "standings",
             "rounds",
+            "settings",
         )
         depth = 1
+
+    def validate(self, data):
+        if "settings" in data:
+            try:
+                data["settings"] = TournamentSettingsSchema().load(data["settings"])
+            except ma.exceptions.ValidationError as e:
+                raise exceptions.ValidationError(e)
+        return data
 
 
 class AddPlayerToTournamentSerializer(serializers.Serializer):
@@ -54,28 +63,3 @@ class SubmitResultsTournamentSerializer(serializers.Serializer):
     player = PlayerNameSerializer(required=True)
     round_id = serializers.IntegerField(required=True)
     score = serializers.JSONField(required=True)
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(required=True)
-
-    def validate(self, attrs):
-        id_field = attrs.get("username")
-        password = attrs.get("password")
-
-        user = None
-
-        if "@" in id_field:
-            user = User.objects.filter(email__iexact=id_field).first()
-        else:
-            user = User.objects.filter(username__iexact=id_field).first()
-
-        if not user or not check_password(password, user.password):
-            raise exceptions.AuthenticationFailed(
-                detail=f"User {id_field} does not exist or credentials are incorrect."
-            )
-
-        attrs["user"] = user
-
-        return attrs

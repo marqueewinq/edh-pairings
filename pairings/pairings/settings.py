@@ -33,13 +33,14 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 BASE_URL = os.getenv("BASE_URL", "http://localhost/")
 
 ALLOWED_HOSTS: ty.List[str] = [] + json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
+CORS_ALLOWED_ORIGINS = json.loads(os.getenv("CORS_ALLOWED_ORIGINS", "[]"))
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": "ERROR",
             "class": "logging.FileHandler",
             "filename": "./debug.log",
         },
@@ -73,10 +74,13 @@ INSTALLED_APPS = [
     "constance",
     "corsheaders",
     "django_extensions",
+    "django_json_widget",
     "tinymce",
-    "pods",
+    "accounts",
     "frontend",
+    "judge",
     "news",
+    "pods",
 ]
 
 MIDDLEWARE = [
@@ -122,7 +126,7 @@ DATABASES = {
     )
 }
 
-# Password validation
+# Authentication
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,6 +138,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# JWT
+
+JWT_ALGORITHM = "HS256"
+JWT_SECRET_KEY = SECRET_KEY
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -161,15 +173,25 @@ STATICFILES_DIRS = (
     # STATIC_ROOT or syncs them to whatever storage we use.
 )
 
+# Authorization
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication"
     ]
 }
+REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "accounts.serializers.LoginSerializer"}
 
-REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "pods.serializers.LoginSerializer"}
 
-CORS_ALLOWED_ORIGINS = json.loads(os.getenv("CORS_ALLOWED_ORIGINS", "[]"))
+# Emails SMTP settings
+
+EMAIL_HOST = os.environ["EMAIL_HOST"]
+EMAIL_PORT = os.environ["EMAIL_PORT"]
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "noreply@edh-pairings.herokuapp.com")
+
+# Constance
 
 CONSTANCE_ADDITIONAL_FIELDS = {
     "version_select": [
@@ -186,12 +208,24 @@ CONSTANCE_CONFIG = {
     "SECONDARY_SCORE_PER_BUY": (0, "Secondary score assigned per player buy", int),
     "PRIMARY_WEIGHT": (10.0, "Weight of primary score in pairing algorithm", float),
     "SECONDARY_WEIGHT": (1.0, "Weight of secondary score in pairing algorithm", float),
-    "JUDGE_VERSION": ("v2", "Version of pairing algorithm", "version_select"),
+    "JUDGE_VERSION": (
+        "deterministic",
+        "Version of pairing algorithm",
+        "version_select",
+    ),
 }
 
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 
 CONSTANCE_CONFIG_FIELDSETS = {
     "Buy Options": ("PRIMARY_SCORE_PER_BUY", "SECONDARY_SCORE_PER_BUY"),
-    "Pairing algorithm config": ("JUDGE_VERSION", "PRIMARY_WEIGHT", "SECONDARY_WEIGHT"),
+    "Pairing algorithm default config": (
+        "JUDGE_VERSION",
+        "PRIMARY_WEIGHT",
+        "SECONDARY_WEIGHT",
+    ),
 }
+
+# Donate
+
+DONATE_LINK_RU = os.environ.get("DONATE_LINK_RU")

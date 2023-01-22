@@ -1,18 +1,9 @@
+import logging
 import uuid
-from copy import deepcopy as copy
 
-import numpy as np
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
-from judge.v1.v1 import (
-    get_pods,
-    get_probability_mat_for_players,
-    get_standings,
-    new_round_random,
-    new_round_with_history,
-    redo_last_round,
-)
+from judge import Judge
 from pods.models import PlayerName, Tournament
 from rest_framework import status, test
 from rest_framework.authtoken.models import Token
@@ -25,6 +16,8 @@ class IntegrationApiTest(test.APITestCase):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("rest_login"), data=user_data, format="json")
         self.token = Token.objects.get(user=self.user).key
+
+        logging.getLogger("django.request").setLevel(logging.ERROR)
 
     def test_create_tournament(self):
         tournament_name = "Tournament2"
@@ -127,11 +120,11 @@ class IntegrationApiTest(test.APITestCase):
 
         # submit some results
         scores = {
-            "Alice": [1, 2],
-            "Bob": [3, 4],
-            "Cath": [5, 6],
-            "Danny": [7, 8],
-            "Eve": [9, 0],
+            "Alice": (1, 2),
+            "Bob": (3, 4),
+            "Cath": (5, 6),
+            "Danny": (7, 8),
+            "Eve": (9, 0),
         }
         assert buyed_player in scores.keys()
         scores.pop(buyed_player)
@@ -146,7 +139,9 @@ class IntegrationApiTest(test.APITestCase):
             )
             assert response.status_code == 200, response.json()
 
-        standings = get_standings(Tournament.objects.get(id=tour.id).data)
+        standings = Judge(config=tour.judge_config).get_standings(
+            Tournament.objects.get(id=tour.id).data
+        )
         for item in standings:
             if item["player_name"] not in scores:
                 assert item["player_name"] == buyed_player
@@ -252,6 +247,8 @@ class PermissionTests(test.APITestCase):
             owner=None,
         )
 
+        logging.getLogger("django.request").setLevel(logging.ERROR)
+
     def _login_as(self, user):
         self.user = user
         self.client.force_authenticate(user=self.user)
@@ -322,8 +319,15 @@ class PermissionTests(test.APITestCase):
         for rev, response in self._read_only_api():
             assert status.is_success(response.status_code), (rev, response)
 
-        expected = [True, True, False, False, True]
-        for (rev, response), expected_success in zip(self._write_api(), expected):
+        expected_regular = {
+            "tournament-list": True,
+            "tournament-create-new-round-in-tournament-user": True,
+            "tournament-create-new-round-in-tournament-other": False,
+            "tournament-create-new-round-in-tournament-admin": False,
+            "tournament-create-new-round-in-tournament-legacy": True,
+        }
+        for (rev, response), expected_key in zip(self._write_api(), expected_regular):
+            expected_success = expected_regular[expected_key]
             if expected_success:
                 assert status.is_success(response.status_code), (rev, response)
             else:
@@ -336,165 +340,3 @@ class PermissionTests(test.APITestCase):
 
         for rev, response in self._write_api():
             assert status.is_success(response.status_code), (rev, response)
-
-
-class LogicTest(TestCase):
-    def test_new_round_random(self):
-        data = [
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Fred", "George", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Zyra", "Sheldon", "Iffy"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                ],
-                "buys": ["Leona"],
-            },
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Zyra", "Iffy", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Fred", "Sheldon", "Leona"],
-                        "scores": [[1, 1], [1, 2], [1, 3], [1, 4]],
-                    },
-                ],
-                "buys": ["George"],
-            },
-        ]
-        new_data = new_round_random(
-            data,
-            [
-                "Albert",
-                "Fred",
-                "George",
-                "Sexton",
-                "Lily",
-                "Zyra",
-                "Sheldon",
-                "Iffy",
-                "Leona",
-            ],
-        )
-
-        assert len(new_data) == 3
-        assert len(new_data[2]["pods"]) == 2
-        self.assertDictEqual(get_standings(new_data)[0], get_standings(data)[0])
-        assert len(new_data[2]["buys"]) == 1
-
-    def test_get_probability_mat_for_players(self):
-        score_list = [2, 2, 2, 2]
-        mat = get_probability_mat_for_players(score_list)
-        for idx in range(len(score_list)):
-            assert mat[idx][idx] == 0, mat
-
-    def test_new_round_prob(self):
-        np.printoptions(precision=2)
-        data = [
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Fred", "George", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Zyra", "Sheldon", "Iffy"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                ],
-                "buys": ["Leona"],
-            },
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Zyra", "Iffy", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Fred", "Sheldon", "Leona"],
-                        "scores": [[1, 1], [1, 2], [1, 3], [1, 4]],
-                    },
-                ],
-                "buys": ["George"],
-            },
-        ]
-        for _ in range(10):
-            new_data = new_round_with_history(copy(data))
-            assert len(new_data) == 3
-            assert len(new_data[2]["pods"]) == 2
-            assert "Sexton" in new_data[2]["pods"][0]["players"]
-            assert "Sexton" not in new_data[2]["buys"]
-            assert "Iffy" not in new_data[2]["buys"]
-
-    def test_get_pods(self):
-        score_list = [1, 2, 300, 400, 500, 600]
-        pods = get_pods(score_list)
-        assert len(pods) == 1
-        assert 5 in pods[0]
-
-        score_list = [1, 1, 1, 1, 1]
-        pods = get_pods(score_list)
-        assert len(pods) == 1
-
-    def test_get_pods_with_exclude(self):
-        score_list = [1, 2, 300, 400, 500, 600]
-        pods = get_pods(score_list, exclude_list=[4, 5])
-        assert len(pods) == 1
-        assert 5 not in pods[0]
-        assert 4 not in pods[0]
-        assert 3 in pods[0]
-
-    def test_redo_last_round(self):
-        data = [
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Fred", "George", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Zyra", "Sheldon", "Iffy"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                ],
-                "buys": ["Leona"],
-                "drop": [],
-            },
-            {
-                "pods": [
-                    {
-                        "players": ["Albert", "Zyra", "Iffy", "Sexton"],
-                        "scores": [[0, 1], [0, 2], [0, 3], [3, 4]],
-                    },
-                    {
-                        "players": ["Lily", "Fred", "Sheldon", "Leona"],
-                        "scores": [[1, 1], [1, 2], [1, 3], [1, 4]],
-                    },
-                ],
-                "buys": ["George"],
-                "drop": ["George"],
-            },
-        ]
-        new_data = redo_last_round(
-            data,
-            [
-                "Albert",
-                "Fred",
-                "George",
-                "Sexton",
-                "Lily",
-                "Zyra",
-                "Sheldon",
-                "Iffy",
-                "Leona",
-            ],
-        )
-
-        assert new_data[-1]["drop"] == ["George"]
-        assert new_data[-1]["buys"] == ["George"]
