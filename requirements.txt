@@ -19,3 +19,6 @@ redis
 dj-database-url
 gunicorn[gevent]
 django-tinymce
+django-json-widget
+pyjwt
+Faker

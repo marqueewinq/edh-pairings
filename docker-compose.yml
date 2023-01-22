@@ -6,6 +6,19 @@ x-environment:
   - POSTGRES_PASSWORD: "postgres"
   - DATABASE_URL: "postgresql://pairings:postgres@db:5432/postgres"
 
+x-environment:
+  &shared-django-envvar
+  - ALLOWED_HOSTS: '["localhost"]'
+  - CORS_ALLOWED_ORIGINS: '["http://localhost"]'
+  - DJANGO_SECRET_KEY: 'CF10q4xOWumF'
+  - DJANGO_DEBUG: "1"
+  - DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"
+  - EMAIL_HOST: "mail.smtp2go.com"
+  - EMAIL_PORT: 2525
+  - EMAIL_HOST_USER: "test"
+  - EMAIL_HOST_PASSWORD: "test-password"
+  - EMAIL_FROM: "test@example.com"
+
 services:
 
   db:
@@ -22,10 +35,7 @@ services:
     build: .
     environment:
       << : *shared-envvar
-      ALLOWED_HOSTS: '["localhost"]'
-      CORS_ALLOWED_ORIGINS: '["http://localhost"]'
-      DJANGO_SECRET_KEY: 'j#3_&14i##xj@6(7m3%n-4zmcxc1_b4d@07ig3!8wlr_6$$s2&0'
-      DJANGO_DEBUG: "1"
+      << : *shared-django-envvar
     # Docker hack to wait until Postgres is up, then run stuff.
     command: >
       bash -c "while ! nc -w 1 -z db 5432;
@@ -48,10 +58,7 @@ services:
     build: .
     environment:
       << : *shared-envvar
-      ALLOWED_HOSTS: '["localhost"]'
-      CORS_ALLOWED_ORIGINS: '["http://localhost"]'
-      DJANGO_SECRET_KEY: 'j#3_&14i##xj@6(7m3%n-4zmcxc1_b4d@07ig3!8wlr_6$$s2&0'
-      DJANGO_DEBUG: "1"
+      << : *shared-django-envvar
     command: >
       bash -c "while ! nc -w 1 -z db 5432;
                do sleep 0.1;
