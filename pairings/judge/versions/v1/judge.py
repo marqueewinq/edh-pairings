@@ -204,11 +204,16 @@ class Judge(AbstractJudge):
             for player_name, player_score in zip(pod["players"], pod["scores"]):
                 score_by_player[player_name] = player_score
                 pod_by_player[player_name] = pod_id
+        dropped_list = rnd.get("drop", [])
         for player_name in rnd["buys"]:
-            score_by_player[player_name] = (
-                primary_score_per_buy,
-                secondary_score_per_buy,
-            )
+            if player_name in dropped_list:
+                score = (0, 0)
+            else:
+                score = (
+                    primary_score_per_buy,
+                    secondary_score_per_buy,
+                )
+            score_by_player[player_name] = score
             pod_by_player[player_name] = None
         return score_by_player, pod_by_player
 

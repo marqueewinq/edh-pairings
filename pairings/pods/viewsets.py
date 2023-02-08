@@ -105,17 +105,12 @@ class TournamentViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         player_names = [item["name"] for item in serializer.validated_data["players"]]
-        print(f"player_names: {player_names}")
         existing_players_queryset = PlayerName.objects.filter(name__in=player_names)
         existing_player_names = existing_players_queryset.values_list("name", flat=True)
         non_existing_player_names = list(set(player_names) - set(existing_player_names))
         non_existing_players = [
             PlayerName(name=name) for name in non_existing_player_names
         ]
-
-        print(f"existing_players_queryset: {existing_players_queryset.all()}")
-        print(f"non_existing_player_names: {non_existing_player_names}")
-        print(f"non_existing_players: {non_existing_players}")
 
         with transaction.atomic():
             # remove all previous m2m
