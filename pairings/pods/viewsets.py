@@ -5,6 +5,7 @@ from pods.models import PlayerName, Tournament
 from pods.permissions import IsTournamentOwnerOrReadOnly
 from pods.serializers import (
     AddPlayerToTournamentSerializer,
+    BulkEditPlayersSerializer,
     PlayerNameSerializer,
     SubmitResultsTournamentSerializer,
     TournamentSerializer,
@@ -91,6 +92,55 @@ class TournamentViewSet(viewsets.ModelViewSet):
         ).drop_player_from_tournament(tournament.data, player_name.name)
         tournament.save()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+    @decorators.action(
+        detail=True,
+        methods=["post"],
+        url_path="bulk-edit",
+        serializer_class=BulkEditPlayersSerializer,
+    )
+    def bulk_edit_players_in_tournament(self, request, id=None):
+        tournament = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        player_names = [item["name"] for item in serializer.validated_data["players"]]
+        print(f"player_names: {player_names}")
+        existing_players_queryset = PlayerName.objects.filter(name__in=player_names)
+        existing_player_names = existing_players_queryset.values_list("name", flat=True)
+        non_existing_player_names = list(set(player_names) - set(existing_player_names))
+        non_existing_players = [
+            PlayerName(name=name) for name in non_existing_player_names
+        ]
+
+        print(f"existing_players_queryset: {existing_players_queryset.all()}")
+        print(f"non_existing_player_names: {non_existing_player_names}")
+        print(f"non_existing_players: {non_existing_players}")
+
+        with transaction.atomic():
+            # remove all previous m2m
+            tournament.players.clear()
+            # create m2ms
+            tournament.players.through.objects.bulk_create(
+                # existing names
+                [
+                    tournament.players.through(
+                        tournament=tournament, playername=player_name
+                    )
+                    for player_name in existing_players_queryset.all()
+                ]
+                # non-existing names
+                + [
+                    tournament.players.through(
+                        tournament=tournament, playername=player_name
+                    )
+                    for player_name in PlayerName.objects.bulk_create(
+                        non_existing_players
+                    )
+                ]
+            )
+
+        return Response(self.get_serializer(tournament).data, status=status.HTTP_200_OK)
 
     @decorators.action(
         detail=True,

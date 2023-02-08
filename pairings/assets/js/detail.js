@@ -1,6 +1,7 @@
 // Globals
 var tournament = null;
 var nav_index = 0;
+var registration_type = 0; // 0 for single-line registration, 1 for bulk edit
 
 function render_header() {
     // render name
@@ -34,6 +35,11 @@ function render_main() {
     } else {
         render_main_ongoing(false);
     }
+
+    feather.replace({
+        height: 16,
+        width: 16,
+    });
 }
 
 function feather_icon(name) {
@@ -42,14 +48,16 @@ function feather_icon(name) {
 
 function render_player_list(table_id, is_render_delete_btn) {
     if (tournament.players.length > 0) {
-        tournament.players.map(function (e) {
+        tournament.players.map(function (e, index) {
             $(table_id)
                 .find("tbody")
                 .append(
                     $("<tr>")
                         .append(
                             $("<td>").append(
-                                $("<span>").attr("class", "text").text(e.id)
+                                $("<span>")
+                                    .attr("class", "text")
+                                    .text(index + 1)
                             )
                         )
                         .append(
@@ -126,8 +134,29 @@ function render_main_registration() {
         .attr("class", "btn btn-sm btn-outline btn-outline-success")
         .html("Begin pairings");
 
-    // render table with players
-    if (tournament.status == 0) {
+    // render #button-switch-to-textarea and table with players
+    //  according to registration_type
+    $("#button-switch-to-textarea").empty();
+    if (registration_type == 0) {
+        $("#button-switch-to-textarea")
+            .append(feather_icon("file-text"))
+            .append(
+                $("<span>")
+                    .attr("class", "text")
+                    .text(" Paste player names as text")
+                    .click(function () {
+                        registration_type = 1;
+                        render_main();
+                    })
+            );
+        // render table with players
+        $("#tournament-list-textarea-input-group").hide();
+        $("#tournament-list-textarea").empty().hide();
+        $("#tournament-list-table")
+            .empty()
+            .append($("<thead>"))
+            .append($("<tbody>"))
+            .show();
         render_player_list("#tournament-list-table");
         $("#tournament-list-table")
             .find("thead")
@@ -143,7 +172,31 @@ function render_main_registration() {
                     .append($("<th>").attr("scope", "col").html(""))
             );
     } else {
-        $("#tournament-list-table").empty();
+        $("#button-switch-to-textarea")
+            .append(feather_icon("terminal"))
+            .append(
+                $("<span>")
+                    .attr("class", "text")
+                    .text(" Switch to single-line input")
+                    .click(function () {
+                        registration_type = 0;
+                        render_main();
+                    })
+            );
+        // render textarea with players
+        $("#tournament-list-textarea-input-group").show();
+        $("#tournament-list-textarea").empty().show();
+        $("#tournament-list-table").empty().hide();
+        var textarea_value = "";
+        tournament.players.map(function (e) {
+            textarea_value += e.name + "\n";
+        });
+        $("#tournament-list-textarea")
+            .attr(
+                "rows",
+                tournament.players.length >= 7 ? tournament.players.length : 7
+            )
+            .val(textarea_value);
     }
 }
 
@@ -616,11 +669,6 @@ function render_main_ongoing(is_running) {
 function render_tournament_detail() {
     render_header();
     render_main();
-
-    feather.replace({
-        height: 16,
-        width: 16,
-    });
 }
 
 function update_tournament_detail() {
@@ -735,6 +783,47 @@ $("#button-redo-pairings").click(function () {
         success: function (result) {
             nav_index = parseInt(tournament.rounds.n_rounds);
             update_tournament_detail();
+        },
+        error: function (error) {
+            console.log(error.status + " " + error.statusText);
+            console.log(error);
+            showAPIAlert(error.responseText);
+        },
+    });
+});
+
+function parse_textarea_into_player_names() {
+    let player_names = $("#tournament-list-textarea").val().split("\n");
+    var result = [];
+    player_names.map(function (e) {
+        if (e.length > 0) {
+            result.push({ name: e });
+        }
+    });
+    return result;
+}
+
+$("#tournament-list-textarea-update").click(function () {
+    $.post({
+        url: base_url + "api/v1/tournaments/" + tournament.id + "/bulk-edit/",
+        headers: get_request_headers(),
+        contentType: "application/json",
+        data: JSON.stringify({ players: parse_textarea_into_player_names() }),
+        success: function (result) {
+            update_tournament_detail();
+            $("#tournament-list-textarea").focus();
+            $("#tournament-list-textarea-update")
+                .removeClass("btn-outline-secondary")
+                .addClass("btn-outline-success")
+                .empty()
+                .append(feather_icon("check"))
+                .append($("<span>").text(" Player list updated"));
+            setTimeout(function () {
+                $("#tournament-list-textarea-update")
+                    .removeClass("btn-outline-success")
+                    .addClass("btn-outline-secondary")
+                    .text("Update");
+            }, 2000);
         },
         error: function (error) {
             console.log(error.status + " " + error.statusText);

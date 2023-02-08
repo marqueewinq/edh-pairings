@@ -135,13 +135,14 @@
                                 <label
                                     class="form-check-label"
                                     for="settings-modal-input-shuffleseats"
-                                    >Each pod will be shuffled after formation</label
+                                    >Each pod will be shuffled after
+                                    formation</label
                                 >
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="container mt-4" style="height: 20px;">
+                <div class="container mt-4" style="height: 20px">
                     <div id="settings-modal-save-status"></div>
                 </div>
             </div>
@@ -168,6 +169,11 @@
             >
                 Add player
             </button>
+            <button
+                class="btn btn-outline-primary"
+                type="button"
+                id="button-switch-to-textarea"
+            ></button>
         </div>
     </div>
     {% endif %}
@@ -175,6 +181,21 @@
         <thead></thead>
         <tbody></tbody>
     </table>
+    <div class="container" id="tournament-list-textarea-input-group" style="display: none;">
+        <div class="input-group">
+            <textarea
+                id="tournament-list-textarea"
+                class="form-control"
+                rows="3"
+            ></textarea>
+            <button class="btn btn-outline-secondary" type="button" id="tournament-list-textarea-update">
+                Update
+            </button>
+        </div>
+        <p class="text text-muted">
+            One line per player name. Empty lines are ignored.
+        </p>
+    </div>
 </div>
 <div class="container-lg" id="main_ongoing">
     <div class="row mb-3">

@@ -48,6 +48,10 @@ class TournamentSerializer(serializers.ModelSerializer):
         return data
 
 
+class BulkEditPlayersSerializer(serializers.Serializer):
+    players = PlayerNameSerializer(many=True, required=True)
+
+
 class AddPlayerToTournamentSerializer(serializers.Serializer):
     player = PlayerNameSerializer(required=True)
 
