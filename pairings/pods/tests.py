@@ -217,6 +217,46 @@ class IntegrationApiTest(test.APITestCase):
         )
         assert response.status_code == 400, response
 
+    def test_bulk_edit_players_in_tournament(self):
+        tour = Tournament.objects.create(name="t1")
+        created_names = PlayerName.objects.bulk_create(
+            [
+                PlayerName(name="Alice"),
+                PlayerName(name="Bob"),
+                PlayerName(name="Cath"),
+                PlayerName(name="Danny"),
+                PlayerName(name="Eve"),
+            ]
+        )
+        uncreated_names = [
+            "Fred",
+            "George",
+            "Harry",
+        ]
+        excluded = PlayerName.objects.create(name="Excluded")
+
+        tour.players.add(excluded)
+
+        response = self.client.post(
+            reverse(
+                "tournament-bulk-edit-players-in-tournament", kwargs={"id": tour.id}
+            ),
+            {
+                "players": [{"name": player.name} for player in created_names]
+                + [{"name": name} for name in uncreated_names]
+            },
+            headers={"Authorization": f"Token {self.token}"},
+            format="json",
+        )
+        assert response.status_code == 200, response.json()
+
+        tour.refresh_from_db()
+
+        assert tour.players.count() == len(created_names) + len(uncreated_names)
+        for name in uncreated_names:
+            assert PlayerName.objects.filter(name=name).exists(), name
+        assert not tour.players.filter(name=excluded.name).exists()
+
 
 class PermissionTests(test.APITestCase):
     def setUp(self):
