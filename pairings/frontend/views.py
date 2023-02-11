@@ -38,6 +38,7 @@ def detail(request, id):
             "tournament": tournament,
             "token": get_user_auth_token(request),
             "latest_news": NewsEntry.objects.order_by("-date_created").first(),
+            "donate_link_ru": settings.DONATE_LINK_RU,
             "to_show_control_buttons": request.user.is_authenticated
             and (tournament.owner is None or tournament.owner == request.user),
         },
