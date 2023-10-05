@@ -22,7 +22,7 @@ pre-commit install
  3. Run service: `docker-compose up --build`
 
 Tests can be run in docker-compose by `docker-compose up test --abort-on-container-exit`
- or inside `web` container by `python3 manage.py test`.
+ or inside `web`/home/marqueewinq/code/synthesized/access-tmp container by `python3 manage.py test`.
 
 ## Deployment
 
