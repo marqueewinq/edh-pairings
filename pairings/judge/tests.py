@@ -27,7 +27,8 @@ class JudgeIntegrationTestCase(TestCase):
         ]
 
     def assertDictNotEqual(self, one, other, message=None):
-        with self.assertRaises(AssertionError, message=message):
+        with self.assertRaises(AssertionError):
+            print(message)
             self.assertDictEqual(one, other)
 
     def _validate_all_rounds_before_late_comers(self, rnd):
