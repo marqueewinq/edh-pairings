@@ -8,7 +8,6 @@ requests
 pre-commit
 django-crispy-forms
 django-webpack-loader
-django-base-url
 django-rest-auth
 django-cors-headers
 marshmallow

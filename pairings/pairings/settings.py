@@ -107,7 +107,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django_base_url.context_processors.base_url",
+                "pairings.context_processors.base_url",
             ]
         },
     }
