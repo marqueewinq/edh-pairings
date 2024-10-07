@@ -4,8 +4,8 @@ x-environment: &shared-envvar
   POSTGRES_USER: "pairings"
   POSTGRES_PASSWORD: "postgres"
   DATABASE_URL: "postgresql://pairings:postgres@db:5432/postgres"
-  ALLOWED_HOSTS: '["localhost"]'
-  CORS_ALLOWED_ORIGINS: '["http://localhost"]'
+  ALLOWED_HOSTS: '["localhost", "edh.marqueewinq.xyz"]'
+  CORS_ALLOWED_ORIGINS: '["http://localhost", "edh.marqueewinq.xyz"]'
   DJANGO_SECRET_KEY: "CF10q4xOWumF"
   DJANGO_DEBUG: "1"
   DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"
