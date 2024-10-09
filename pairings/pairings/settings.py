@@ -189,7 +189,7 @@ EMAIL_HOST = os.environ["EMAIL_HOST"]
 EMAIL_PORT = os.environ["EMAIL_PORT"]
 EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
-EMAIL_FROM = os.environ.get("EMAIL_FROM", "noreply@edh-pairings.herokuapp.com")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "noreply@edh.marqueewinq.xyz")
 
 # Constance
 
