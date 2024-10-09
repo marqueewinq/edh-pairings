@@ -4,7 +4,7 @@ x-environment: &shared-envvar
   DATABASE_URL: "postgresql://pairings:postgres@db:5432/postgres"
   ALLOWED_HOSTS: '["edh.marqueewinq.xyz"]'
   CORS_ALLOWED_ORIGINS: '["https://edh.marqueewinq.xyz"]'
-  BASE_URL: "https://edh.marqueewinq.xyz"
+  BASE_URL: "https://edh.marqueewinq.xyz/"
   DJANGO_DEBUG: "1"
   DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"
   EMAIL_HOST: "mail.smtp2go.com"
