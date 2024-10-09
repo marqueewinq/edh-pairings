@@ -9,7 +9,6 @@ x-environment: &shared-envvar
   DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"
   EMAIL_HOST: "mail.smtp2go.com"
   EMAIL_PORT: 2525
-  EMAIL_FROM: "test@example.com"
 
 services:
   db:
