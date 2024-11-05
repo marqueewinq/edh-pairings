@@ -25,6 +25,18 @@
   </head>
 
   <body>
+    <div class="container-lg mt-3">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger border border-danger shadow-sm alert-dismissible fade show" role="alert">
+                <i class="feather" data-feather="alert-circle"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
     <div
       class="alert alert-success alert-dismissible fade hide"
       id="alert-unread-news"
