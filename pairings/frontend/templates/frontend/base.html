@@ -26,15 +26,17 @@
 
   <body>
     <div class="container-lg mt-3">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-danger border border-danger shadow-sm alert-dismissible fade show" role="alert">
-                <i class="feather" data-feather="alert-circle"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
+        {% for message in messages %}
+        <div class="alert 
+            alert-{% if message.level_tag == 'error' %}danger
+                  {% elif message.level_tag == 'debug' %}secondary
+                  {% else %}{{ message.level_tag }}{% endif %} 
+            border shadow-sm alert-dismissible fade show" 
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
     </div>
 
     <div
