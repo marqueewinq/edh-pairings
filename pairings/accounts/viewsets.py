@@ -7,6 +7,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from rest_framework import decorators, mixins, response, status, throttling, viewsets
+from django.contrib import messages
 
 
 class UserViewSet(
@@ -55,4 +56,6 @@ class UserViewSet(
         user = validate_token(token)
         if user is not None:
             login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
+        else:
+            messages.error(request, "Login link is invalid or has expired. Please request a new one.")
         return redirect("index")

@@ -1,6 +1,6 @@
 # edh-pairings
 
-4-player tournament organizer. https://edh-pairings.herokuapp.com/
+4-player tournament organizer. https://edh.marqueewinq.xyz/
 
 ## Stack
 

@@ -25,6 +25,20 @@
   </head>
 
   <body>
+    <div class="container-lg mt-3">
+        {% for message in messages %}
+        <div class="alert 
+            alert-{% if message.level_tag == 'error' %}danger
+                  {% elif message.level_tag == 'debug' %}secondary
+                  {% else %}{{ message.level_tag }}{% endif %} 
+            border shadow-sm alert-dismissible fade show" 
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+
     <div
       class="alert alert-success alert-dismissible fade hide"
       id="alert-unread-news"
