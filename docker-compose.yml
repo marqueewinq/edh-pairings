@@ -5,7 +5,6 @@ x-environment: &shared-envvar
   ALLOWED_HOSTS: '["edh.marqueewinq.xyz"]'
   CORS_ALLOWED_ORIGINS: '["https://edh.marqueewinq.xyz"]'
   BASE_URL: "https://edh.marqueewinq.xyz/"
-  DJANGO_DEBUG: "1"
   DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"
   EMAIL_HOST: "mail.smtp2go.com"
   EMAIL_PORT: 2525
