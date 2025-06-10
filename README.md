@@ -7,7 +7,7 @@
  - Django v2 + Django-Rest-Framework
  - jQuery + Bootstrap
  - Docker for local development
- - Heroku
+ - Deployed with nginx on a private server
 
 ## Development
 

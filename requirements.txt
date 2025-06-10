@@ -10,7 +10,7 @@ django-crispy-forms
 django-webpack-loader
 django-rest-auth
 django-cors-headers
-marshmallow
+marshmallow<3.0.0
 numpy
 scipy
 django-constance[database]
