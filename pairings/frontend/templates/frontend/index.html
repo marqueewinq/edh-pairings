@@ -15,6 +15,14 @@
     >
         <i data-feather="rss"></i> Learn about the latest updates
     </button>
+    <button
+    type="button"
+    class="btn btn-sm btn-link"
+    data-bs-toggle="modal"
+    data-bs-target="#privacyModal"
+>
+    Privacy Policy
+</button>
     <hr />
 </div>
 <div class="container-lg">
@@ -74,6 +82,25 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>We value your privacy. This application collects minimal personal data and uses it solely for the purpose of managing EDH tournaments. We do not sell, share, or trade your data with third parties.</p>
+        <p>Details we may collect include your username, email address, and tournament activity. These are used for tournament organization and user account functionality only.</p>
+        <p>By using this site, you consent to this privacy policy. Contact the site admin for any concerns or to request data deletion.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %} {% block scripts %}
 <script src="{% static 'js/index.js'%}"></script>
