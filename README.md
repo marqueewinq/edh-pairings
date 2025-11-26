@@ -26,4 +26,4 @@ Tests can be run in docker-compose by `docker-compose up test --abort-on-contain
 
 ## Deployment
 
-Gitlab CI is configured to deploy to https://edh-pairings.marqueewinq.xyz/
+Gitlab CI is configured to deploy to https://edh-pairings.marqueewinq.xyz/.
