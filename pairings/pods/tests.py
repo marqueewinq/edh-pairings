@@ -380,3 +380,94 @@ class PermissionTests(test.APITestCase):
 
         for rev, response in self._write_api():
             assert status.is_success(response.status_code), (rev, response)
+
+
+class TournamentDeleteTests(test.APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="user", password="user")
+        self.other = User.objects.create_user(username="other", password="other")
+        self.admin = User.objects.create_user(username="admin", password="admin")
+        self.admin.is_staff = True
+        self.admin.save()
+
+        self.user_tournament = Tournament.objects.create(
+            name="user_tournament",
+            owner=self.user,
+        )
+        self.other_tournament = Tournament.objects.create(
+            name="other_tournament",
+            owner=self.other,
+        )
+        self.admin_tournament = Tournament.objects.create(
+            name="admin_tournament",
+            owner=self.admin,
+        )
+        self.legacy_tournament = Tournament.objects.create(
+            name="legacy_tournament",
+            owner=None,
+        )
+
+        logging.getLogger("django.request").setLevel(logging.ERROR)
+
+    def _login_as(self, user):
+        self.client.force_authenticate(user=user)
+        self.client.post(
+            reverse("rest_login"),
+            data={"username": user.username, "password": user.username},
+            format="json",
+        )
+        self.token = Token.objects.get(user=user).key
+
+    def _headers(self):
+        return {"Authorization": f"Token {self.token}"}
+
+    def test_delete_own_tournament(self):
+        self._login_as(self.user)
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.user_tournament.id}),
+            **self._headers(),
+        )
+        assert response.status_code == 204, response
+        assert not Tournament.objects.filter(id=self.user_tournament.id).exists()
+
+    def test_delete_other_user_tournament_forbidden(self):
+        self._login_as(self.user)
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.other_tournament.id}),
+            **self._headers(),
+        )
+        assert response.status_code == 403, response
+        assert Tournament.objects.filter(id=self.other_tournament.id).exists()
+
+    def test_delete_legacy_tournament_allowed(self):
+        self._login_as(self.user)
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.legacy_tournament.id}),
+            **self._headers(),
+        )
+        assert response.status_code == 204, response
+        assert not Tournament.objects.filter(id=self.legacy_tournament.id).exists()
+
+    def test_admin_delete_any_tournament(self):
+        self._login_as(self.admin)
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.user_tournament.id}),
+            **self._headers(),
+        )
+        assert response.status_code == 204, response
+        assert not Tournament.objects.filter(id=self.user_tournament.id).exists()
+
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.other_tournament.id}),
+            **self._headers(),
+        )
+        assert response.status_code == 204, response
+        assert not Tournament.objects.filter(id=self.other_tournament.id).exists()
+
+    def test_delete_tournament_unauthenticated(self):
+        self.client.logout()
+        response = self.client.delete(
+            reverse("tournament-detail", kwargs={"id": self.user_tournament.id}),
+        )
+        assert response.status_code == 401, response
+        assert Tournament.objects.filter(id=self.user_tournament.id).exists()

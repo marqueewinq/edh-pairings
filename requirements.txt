@@ -21,3 +21,4 @@ django-tinymce
 django-json-widget
 pyjwt
 Faker
+setuptools

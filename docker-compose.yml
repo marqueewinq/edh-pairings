@@ -2,7 +2,7 @@ x-environment: &shared-envvar
   POSTGRES_USER: "pairings"
   POSTGRES_PASSWORD: "postgres"
   DATABASE_URL: "postgresql://pairings:postgres@db:5432/postgres"
-  ALLOWED_HOSTS: '["edh.marqueewinq.xyz"]'
+  ALLOWED_HOSTS: '["edh.marqueewinq.xyz", "localhost"]'
   CORS_ALLOWED_ORIGINS: '["https://edh.marqueewinq.xyz"]'
   BASE_URL: "https://edh.marqueewinq.xyz/"
   DONATE_LINK_RU: "https://www.tinkoff.ru/rm/vinogradov.mark2/aAtTu4590"

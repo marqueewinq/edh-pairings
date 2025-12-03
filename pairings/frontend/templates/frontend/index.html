@@ -56,6 +56,9 @@
                 <th scope="col">{% trans 'Tournament Name'%}</th>
                 <th scope="col">{% trans 'Owner'%}</th>
                 <th scope="col">{% trans 'Tournament Date'%}</th>
+                {% if user.is_authenticated %}
+                <th scope="col">{% trans 'Actions'%}</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -68,6 +71,20 @@
                     {{item.owner | default_if_none:"<i data-feather='minus'></i>"}}
                 </td>
                 <td>{{item.date_created}}</td>
+                {% if user.is_authenticated %}
+                <td>
+                    {% if item.owner == user or user.is_staff or item.owner == None %}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger delete-tournament"
+                        data-tournament-id="{{item.id}}"
+                        data-tournament-name="{{item.name}}"
+                    >
+                        <i data-feather="x"></i>
+                    </button>
+                    {% endif %}
+                </td>
+                {% endif %}
             </tr>
             {% empty %}
             <tr>
