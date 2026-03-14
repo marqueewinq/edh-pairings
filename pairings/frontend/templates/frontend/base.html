@@ -16,6 +16,10 @@
       integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="{% static 'css/style.css' %}"
+    />
 
     <link
       rel="shortcut icon"
@@ -25,13 +29,14 @@
   </head>
 
   <body>
+    <!-- Messages -->
     <div class="container-lg mt-3">
         {% for message in messages %}
-        <div class="alert 
+        <div class="alert
             alert-{% if message.level_tag == 'error' %}danger
                   {% elif message.level_tag == 'debug' %}secondary
-                  {% else %}{{ message.level_tag }}{% endif %} 
-            border shadow-sm alert-dismissible fade show" 
+                  {% else %}{{ message.level_tag }}{% endif %}
+            border shadow-sm alert-dismissible fade show"
             role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -39,250 +44,146 @@
         {% endfor %}
     </div>
 
-    <div
-      class="alert alert-success alert-dismissible fade hide"
-      id="alert-unread-news"
-      role="alert"
-    >
-      <i data-feather="rss"></i> <strong>Learn what's new!</strong> Make sure to
-      <a
-        href="#"
-        id="link-show-news-modal"
-        data-bs-toggle="modal"
-        data-bs-target="#newsModal"
-        >learn about the latest updates</a
-      >.
+    <!-- Unread news alert -->
+    <div class="container-lg">
+      <div
+        class="alert alert-success alert-dismissible fade hide"
+        id="alert-unread-news"
+        role="alert"
+      >
+        <i data-feather="rss"></i> <strong>Learn what's new!</strong>
+        <a href="#" id="link-show-news-modal" data-bs-toggle="modal" data-bs-target="#newsModal">
+          See the latest updates
+        </a>.
+      </div>
     </div>
-    <nav class="navbar navbar-padding-2 navbar-light">
-      <div class="container-fluid">
-        <form class="form-inline my-2 my-lg-0">
-          <!-- Log in / log out button and it's modal form -->
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand navbar-light bg-white border-bottom mb-3">
+      <div class="container-lg">
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <img src="{% static 'favicon.png' %}" alt="" />
+          EDH Pairings
+        </a>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            data-bs-toggle="modal"
+            data-bs-target="#newsModal"
+          >
+            <i data-feather="rss"></i>
+          </button>
           {% if user.is_authenticated %}
           <button
             type="button"
-            class="btn btn-sm btn-outline-dark my-2 my-sm-0"
-            id="button-logout"
-          >
-            <i data-feather="shield"></i>
-            {{ user.username }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-dark my-2 my-sm-0 ml-4"
+            class="btn btn-sm btn-outline-secondary"
             data-bs-toggle="modal"
             data-bs-target="#user-settings-modal"
           >
             <i data-feather="settings"></i>
-            My settings
           </button>
-          <div
-            class="modal fade"
-            id="user-settings-modal"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="user-settings-modal-label"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="user-settings-modal-label">
-                    My Account
-                  </h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div class="modal-body">
-                  <div class="container-fluid justify-content-center">
-                    <form>
-                      <div class="container mt-3">
-                        <div class="row g-2">
-                          <div class="col-md">
-                            <div class="input-group has-validation">
-                              <div class="form-floating">
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  id="user-settings-modal-input-username"
-                                  aria-describedby="user-settings-modal-input-username-feedback"
-                                />
-                                <label for="user-settings-modal-input-username"
-                                  >Username</label
-                                >
-                                <div
-                                  id="user-settings-modal-input-username-feedback"
-                                  class=""
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md">
-                            <div class="input-group has-validation">
-                              <div class="form-floating">
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  id="user-settings-modal-input-email"
-                                  aria-describedby="user-settings-modal-input-email-feedback"
-                                />
-                                <label for="user-settings-modal-input-email"
-                                  >Email</label
-                                >
-                                <div
-                                  id="user-settings-modal-input-email-feedback"
-                                  class=""
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </form>
-                    <div class="container mt-4" style="height: 20px">
-                      <div id="user-settings-modal-save-status"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% else %}
-          <!-- Button trigger modal -->
           <button
             type="button"
-            class="btn btn-sm btn-outline-secondary my-2 my-sm-0"
+            class="btn btn-sm btn-outline-dark"
+            id="button-logout"
+          >
+            <i data-feather="log-out"></i>
+            {{ user.username }}
+          </button>
+          {% else %}
+          <button
+            type="button"
+            class="btn btn-sm btn-dark"
             data-bs-toggle="modal"
             data-bs-target="#loginModal"
           >
-            <i data-feather="shield-off"></i>
-            Log in / Sign up
+            <i data-feather="log-in"></i>
+            Log in
           </button>
-          <!-- Modal -->
-          <div
-            class="modal fade"
-            id="loginModal"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="logInModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="logInModalLabel">Log in</h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div class="modal-body">
-                  <div class="container-fluid justify-content-center mt-1">
-                    <p class="text-start">Log in by username + password:</p>
-                    <form>
-                      <div class="input-group">
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="input-username"
-                          placeholder="username"
-                        />
-                        <input
-                          type="password"
-                          class="form-control"
-                          id="input-password"
-                          placeholder="password"
-                        />
-                        <div class="input-group-append">
-                          <button
-                            type="button"
-                            class="btn btn-outline-secondary"
-                            id="button-login"
-                          >
-                            Log in
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="container-fluid justify-content-center mt-4">
-                    <p class="text-start">Log in / sign up by email:</p>
-                    <form>
-                      <div class="input-group">
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="input-email"
-                          placeholder="my@email.com"
-                        />
-                        <div class="input-group-append">
-                          <button
-                            type="button"
-                            class="btn btn-outline-primary"
-                            id="button-send-login-link"
-                            style="width: 200px"
-                          >
-                            Send me the login link
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="alert-box-login"></div>
-          </div>
           {% endif %}
-        </form>
+        </div>
       </div>
     </nav>
 
-    <div
-      class="modal fade"
-      id="newsModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="newsModalLabel"
-      aria-hidden="true"
-    >
-      <!-- News modal -->
-      <div class="modal-dialog modal-lg" role="document">
+    <!-- User settings modal -->
+    {% if user.is_authenticated %}
+    <div class="modal fade" id="user-settings-modal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="newsModalLabel">Latest updates</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <h5 class="modal-title">My Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="container">
-              <button id="news-switch-EN-button" class="btn btn-primary">
-                EN
-              </button>
-              <button id="news-switch-RU-button" class="btn btn-secondary">
-                RU
+            <div class="mb-3">
+              <label for="user-settings-modal-input-username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="user-settings-modal-input-username"
+                     aria-describedby="user-settings-modal-input-username-feedback" />
+              <div id="user-settings-modal-input-username-feedback"></div>
+            </div>
+            <div class="mb-3">
+              <label for="user-settings-modal-input-email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="user-settings-modal-input-email"
+                     aria-describedby="user-settings-modal-input-email-feedback" />
+              <div id="user-settings-modal-input-email-feedback"></div>
+            </div>
+            <div id="user-settings-modal-save-status" style="min-height: 20px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Login modal -->
+    {% if not user.is_authenticated %}
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Log in</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted mb-2">Log in with username + password:</p>
+            <div class="input-group mb-4">
+              <input type="text" class="form-control" id="input-username" placeholder="Username" />
+              <input type="password" class="form-control" id="input-password" placeholder="Password" />
+              <button type="button" class="btn btn-dark" id="button-login">Log in</button>
+            </div>
+            <div id="alert-box-login"></div>
+            <hr />
+            <p class="text-muted mb-2">Or sign up / log in by email:</p>
+            <div class="input-group">
+              <input type="email" class="form-control" id="input-email" placeholder="my@email.com" />
+              <button type="button" class="btn btn-outline-primary" id="button-send-login-link"
+                      style="min-width: 160px;">
+                Send login link
               </button>
             </div>
-            <div
-              id="news-body-en"
-              class="container-fluid justify-content-center"
-            >
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- News modal -->
+    <div class="modal fade" id="newsModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Latest updates</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="btn-group btn-group-sm mb-3">
+              <button id="news-switch-EN-button" class="btn btn-primary">EN</button>
+              <button id="news-switch-RU-button" class="btn btn-outline-secondary">RU</button>
+            </div>
+            <div id="news-body-en">
               {{ latest_news.html_entry | safe }}
             </div>
-            <div
-              id="news-body-ru"
-              class="container-fluid justify-content-center"
-              style="display: none"
-            >
+            <div id="news-body-ru" style="display: none;">
               {{ latest_news.html_entry_ru | safe }}
             </div>
           </div>
@@ -292,7 +193,8 @@
 
     {% block body %} {% endblock %}
 
-    <div class="container">
+    <!-- API error alert -->
+    <div class="container-lg">
       <div
         class="alert alert-danger alert-dismissible fade hide"
         id="alert-api-error"
@@ -300,44 +202,25 @@
       ></div>
     </div>
 
-    <container class="container container-fluid">
-      <!-- common footer -->
-      <footer class="footer py-3 my-4">
-        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-          <li class="nav-item">
-            <a
-              href="https://t.me/toxiccaterpillarpairings"
-              class="nav-link px-2 text-muted"
-              target="_blank"
-              ><i data-feather="message-circle"></i> Stay tuned</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              href="https://t.me/joinchat/A4CHREwegejG6CYXuE7Ezw"
-              class="nav-link px-2 text-muted"
-              target="_blank"
-              ><i data-feather="message-square"></i> Toxic Caterpillar
-              community</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              href="{{ donate_link_ru }}"
-              class="nav-link px-2 text-muted"
-              target="_blank"
-              ><i data-feather="award"></i> Donate (RU)</a
-            >
-          </li>
-        </ul>
-        <a
-          href="https://marqueewinq.url.lol/cv"
-          class="nav-link text-center text-muted"
-          target="_blank"
-          >Made with <i data-feather="heart"></i> by @marqueewinq</a
-        >
-      </footer>
-    </container>
+    <!-- Footer -->
+    <footer class="container-lg mt-5 pt-3 border-top">
+      <div class="d-flex flex-wrap justify-content-center gap-3 mb-2">
+        <a href="https://t.me/toxiccaterpillarpairings" class="text-muted small" target="_blank">
+          <i data-feather="message-circle"></i> Stay tuned
+        </a>
+        <a href="https://t.me/joinchat/A4CHREwegejG6CYXuE7Ezw" class="text-muted small" target="_blank">
+          <i data-feather="message-square"></i> Community
+        </a>
+        <a href="{{ donate_link_ru }}" class="text-muted small" target="_blank">
+          <i data-feather="award"></i> Donate (RU)
+        </a>
+      </div>
+      <p class="text-center text-muted small mb-0">
+        <a href="https://marqueewinq.url.lol/cv" class="text-muted" target="_blank">
+          Made with <i data-feather="heart"></i> by @marqueewinq
+        </a>
+      </p>
+    </footer>
 
     <script
       src="https://code.jquery.com/jquery-3.6.3.min.js"
@@ -365,7 +248,6 @@
     <script>
       let auth_token = "{{ token }}";
       let user_id = "{{ user.id }}";
-
       let is_authenticated = "{{ user.is_authenticated }}" == "True";
       let latest_news_tag = "{{ latest_news.uuid }}";
     </script>

@@ -1,230 +1,140 @@
 {% extends 'frontend/base.html' %} {% load static %} {% load i18n %}
 
-<!-- -->
-
 {% block body %}
-<style></style>
 <div class="container-lg">
-    <div class="d-flex flex-row align-items-center mb-1 mt-3">
-        <a
-            href="{% url 'index' %}"
-            class="btn btn-sm btn-outline-secondary ml-2"
-            ><span data-feather="arrow-left" height="16"></span> Back to
-            tournaments</a
-        >
+    <!-- Back link -->
+    <div class="mb-2">
+        <a href="{% url 'index' %}" class="text-muted small text-decoration-none">
+            <i data-feather="arrow-left" height="14"></i> All tournaments
+        </a>
     </div>
-    <div class="d-flex flex-row align-items-center mb-1">
-        <h3 class="display-4" id="tournament_name"></h3>
-    </div>
-    {% if tournament.owner %}
-    <div class="d-flex flex-row align-items-center mb-1">
-        Owner: {{ tournament.owner }}
-    </div>
-    {% endif %}
-    <div class="d-flex flex-row align-items-center mb-3">
-        <div class="container">
-            <span class="text-justify ml-2 mr-1" id="tournament_status"></span>
-            {% if to_show_control_buttons %}
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-success ml-2"
-                id="next-phase-button"
-            ></button>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary ml-2"
-                id="settings-button"
-                data-bs-toggle="modal"
-                data-bs-target="#settings-modal"
-            >
-                <i data-feather="menu"></i> Settings
-            </button>
+
+    <!-- Tournament header card -->
+    <div class="tournament-header">
+        <h3 id="tournament_name"></h3>
+        <div class="tournament-meta">
+            <span id="tournament_status"></span>
+            {% if tournament.owner %}
+            <span class="text-muted small">Owner: {{ tournament.owner }}</span>
             {% endif %}
         </div>
+        {% if to_show_control_buttons %}
+        <div class="tournament-actions">
+            <button type="button" class="btn btn-sm btn-success btn-action-primary" id="next-phase-button"></button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="settings-button"
+                    data-bs-toggle="modal" data-bs-target="#settings-modal">
+                <i data-feather="sliders"></i> Settings
+            </button>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<div
-    class="modal fade"
-    id="settings-modal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="settings-modal-label"
-    aria-hidden="true"
->
-    <!-- Tournament settings modal -->
-    <div class="modal-dialog modal-lg" role="document">
+<!-- Tournament settings modal -->
+<div class="modal fade" id="settings-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="settings-modal-label">
-                    Tournament Settings
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
+                <h5 class="modal-title">Tournament Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="container" id="settings-modal-body">
-                    <form>
-                        <div class="container">
-                            <div class="form-floating mb-6">
-                                <select
-                                    class="form-select"
-                                    id="settings-modal-input-judge-version"
-                                >
-                                    <option selected value="deterministic">
-                                        Deterministic
-                                    </option>
-                                    <option value="soft_random">
-                                        Soft random
-                                    </option>
-                                    <option value="pure_random">
-                                        Pure random
-                                    </option>
-                                </select>
-                                <label for="settings-modal-input-judge-version"
-                                    >Version of pairing algorithm</label
-                                >
-                            </div>
-                            <div
-                                class="text text-muted mt-3 mb-3"
-                                id="settings-modal-input-judge-version-description-label"
-                            ></div>
-                        </div>
-                        <div class="container mt-3">
-                            <div class="row g-2">
-                                <div class="col-md">
-                                    <div class="form-floating">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="settings-modal-input-judge-buy-primary"
-                                        />
-                                        <label
-                                            for="settings-modal-input-judge-buy-primary"
-                                            >Primary score per buy</label
-                                        >
-                                    </div>
-                                </div>
-                                <div class="col-md">
-                                    <div class="form-floating">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="settings-modal-input-judge-buy-secondary"
-                                        />
-                                        <label
-                                            for="settings-modal-input-judge-buy-secondary"
-                                            >Secondary score per buy</label
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="container mt-3">
-                            <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="settings-modal-input-shuffleseats"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    for="settings-modal-input-shuffleseats"
-                                    >Each pod will be shuffled after
-                                    formation</label
-                                >
-                            </div>
-                        </div>
-                    </form>
+            <div class="modal-body" id="settings-modal-body">
+                <div class="mb-3">
+                    <label for="settings-modal-input-judge-version" class="form-label fw-semibold">Pairing algorithm</label>
+                    <select class="form-select" id="settings-modal-input-judge-version">
+                        <option selected value="deterministic">Deterministic</option>
+                        <option value="soft_random">Soft random</option>
+                        <option value="pure_random">Pure random</option>
+                    </select>
+                    <div class="form-text" id="settings-modal-input-judge-version-description-label"></div>
                 </div>
-                <div class="container mt-4" style="height: 20px">
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label for="settings-modal-input-judge-buy-primary" class="form-label">Primary score per buy</label>
+                        <input type="number" class="form-control" id="settings-modal-input-judge-buy-primary" />
+                    </div>
+                    <div class="col-6">
+                        <label for="settings-modal-input-judge-buy-secondary" class="form-label">Secondary score per buy</label>
+                        <input type="number" class="form-control" id="settings-modal-input-judge-buy-secondary" />
+                    </div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="settings-modal-input-shuffleseats" />
+                    <label class="form-check-label" for="settings-modal-input-shuffleseats">
+                        Shuffle seats within each pod
+                    </label>
+                </div>
+                <div class="mt-3" style="min-height: 20px;">
                     <div id="settings-modal-save-status"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<hr />
+
+<!-- Registration section -->
 <div class="container-lg" id="main_registration">
     {% if user.is_authenticated %}
-    <div class="input-group mb-3" id="input-playername-div">
-        <input
-            type="text"
-            class="form-control"
-            id="input-playername"
-            placeholder="Player name"
-            aria-label="Player name"
-            aria-describedby="button-add"
-        />
-        <div class="input-group-append">
-            <button
-                class="btn btn-outline-secondary"
-                type="button"
-                id="button-add"
-            >
-                Add player
-            </button>
-            <button
-                class="btn btn-outline-primary"
-                type="button"
-                id="button-switch-to-textarea"
-            ></button>
+    <div class="panel">
+        <div class="panel-header">
+            <h5>Players</h5>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="button-switch-to-textarea"></button>
         </div>
+        <div class="input-group mb-3 registration-input" id="input-playername-div">
+            <input
+                type="text"
+                class="form-control"
+                id="input-playername"
+                placeholder="Player name"
+                aria-label="Player name"
+            />
+            <button class="btn btn-outline-primary" type="button" id="button-add">
+                <i data-feather="user-plus"></i> Add
+            </button>
+        </div>
+        <table class="table table-sm player-list-table mb-0" id="tournament-list-table">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+        <div id="tournament-list-textarea-input-group" style="display: none;">
+            <textarea id="tournament-list-textarea" class="form-control mb-2" rows="7"
+                      placeholder="One player name per line"></textarea>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-primary btn-sm" type="button" id="tournament-list-textarea-update">
+                    Update player list
+                </button>
+                <span class="text-muted small">One line per player name. Empty lines are ignored.</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="panel">
+        <table class="table table-sm player-list-table mb-0" id="tournament-list-table">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
     </div>
     {% endif %}
-    <table class="table" id="tournament-list-table">
-        <thead></thead>
-        <tbody></tbody>
-    </table>
-    <div class="container" id="tournament-list-textarea-input-group" style="display: none;">
-        <div class="input-group">
-            <textarea
-                id="tournament-list-textarea"
-                class="form-control"
-                rows="3"
-            ></textarea>
-            <button class="btn btn-outline-secondary" type="button" id="tournament-list-textarea-update">
-                Update
-            </button>
-        </div>
-        <p class="text text-muted">
-            One line per player name. Empty lines are ignored.
-        </p>
-    </div>
 </div>
-<div class="container-lg" id="main_ongoing">
-    <div class="row mb-3">
-        <div class="col-md-9">
-            <nav>
-                <ul class="pagination" id="ongoing_nav_list"></ul>
-            </nav>
-        </div>
-        <div class="col-md-3">
-            <button
-                class="btn btn-outline-secondary ml-1"
-                id="button-new-round"
-                title="New round"
-            >
-                <i data-feather="plus"></i>
-            </button>
-            <button
-                class="btn btn-outline-warning ml-3"
-                id="button-redo-pairings"
-                title="Redo last round pairings"
-            >
-                <i data-feather="repeat"></i>
-            </button>
-        </div>
-    </div>
 
-    <div class="container" id="main_ongoing_body"></div>
+<!-- Ongoing section (rounds + standings) -->
+<div class="container-lg" id="main_ongoing">
+    <div class="round-controls">
+        <div class="round-tabs" id="ongoing_nav_list"></div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="button-new-round" title="New round">
+                <i data-feather="plus"></i> New round
+            </button>
+            <button class="btn btn-sm btn-outline-warning" id="button-redo-pairings" title="Redo last round pairings">
+                <i data-feather="refresh-cw"></i> Redo
+            </button>
+        </div>
+    </div>
+    <div id="main_ongoing_body"></div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+
+{% block scripts %}
 <script type="text/javascript">
     var tournament_id = {{tournament.id}};
 </script>

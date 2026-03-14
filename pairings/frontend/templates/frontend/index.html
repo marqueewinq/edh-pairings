@@ -1,111 +1,87 @@
 {% extends 'frontend/base.html' %} {% load static %} {% load i18n %}
 
-<!-- -->
 {% block body %}
 <div class="container-lg">
-    <h2 class="display-4">
-        <img src="{% static 'favicon.png' %}" height="64" /> EDH Events
-    </h2>
-    <button
-        type="button"
-        class="btn btn-sm"
-        id="button-show-news-modal"
-        data-bs-toggle="modal"
-        data-bs-target="#newsModal"
-    >
-        <i data-feather="rss"></i> Learn about the latest updates
-    </button>
-    <button
-    type="button"
-    class="btn btn-sm btn-link"
-    data-bs-toggle="modal"
-    data-bs-target="#privacyModal"
->
-    Privacy Policy
-</button>
-    <hr />
-</div>
-<div class="container-lg">
-    <div class="input-group mb-3">
-        {% if user.is_authenticated %}
-        <input
-            type="text"
-            class="form-control"
-            id="input-name"
-            placeholder="New tournament name"
-            aria-label="New tournament name"
-            aria-describedby="button-new-tournament"
-        />
-        <div class="input-group-append">
+    {% if user.is_authenticated %}
+    <div class="panel">
+        <div class="input-group registration-input">
+            <input
+                type="text"
+                class="form-control"
+                id="input-name"
+                placeholder="New tournament name"
+                aria-label="New tournament name"
+            />
             <button
                 type="button"
-                class="btn btn-outline-success"
+                class="btn btn-success"
                 id="button-new-tournament"
             >
-                <i data-feather="plus"></i>
+                <i data-feather="plus"></i> Create
             </button>
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="panel">
+        <table class="table table-hover mb-0" id="tournament-list-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="player-list-table">#</th>
+                    <th scope="col" class="player-list-table">{% trans 'Tournament Name'%}</th>
+                    <th scope="col" class="player-list-table">{% trans 'Owner'%}</th>
+                    <th scope="col" class="player-list-table">{% trans 'Date'%}</th>
+                    {% if user.is_authenticated %}
+                    <th scope="col" class="player-list-table"></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in tournaments %}
+                <tr class="tournament-list-item">
+                    <td class="text-muted">{{item.id}}</td>
+                    <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
+                    <td class="text-muted">
+                        {{item.owner | default_if_none:"&mdash;"}}
+                    </td>
+                    <td class="text-muted">{{item.date_created}}</td>
+                    {% if user.is_authenticated %}
+                    <td>
+                        {% if item.owner == user or user.is_staff or item.owner == None %}
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger delete-tournament"
+                            data-tournament-id="{{item.id}}"
+                            data-tournament-name="{{item.name}}"
+                            title="Delete tournament"
+                        >
+                            <i data-feather="trash-2"></i>
+                        </button>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i data-feather="calendar" width="32" height="32"></i>
+                            <p>No tournaments yet</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-<div class="container-lg">
-    <table class="table" id="tournament-list-table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">{% trans 'Tournament Name'%}</th>
-                <th scope="col">{% trans 'Owner'%}</th>
-                <th scope="col">{% trans 'Tournament Date'%}</th>
-                {% if user.is_authenticated %}
-                <th scope="col">{% trans 'Actions'%}</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in tournaments %}
-            <tr>
-                <td>{{item.id}}</td>
-                <td><a href="/tournaments/{{item.id}}/">{{item.name}}</a></td>
-                <!-- prettier-ignore -->
-                <td>
-                    {{item.owner | default_if_none:"<i data-feather='minus'></i>"}}
-                </td>
-                <td>{{item.date_created}}</td>
-                {% if user.is_authenticated %}
-                <td>
-                    {% if item.owner == user or user.is_staff or item.owner == None %}
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-danger delete-tournament"
-                        data-tournament-id="{{item.id}}"
-                        data-tournament-name="{{item.name}}"
-                    >
-                        <i data-feather="x"></i>
-                    </button>
-                    {% endif %}
-                </td>
-                {% endif %}
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">
-                    <center>
-                        <i data-feather="alert-circle"></i>
-                        No tournaments yet
-                        <i data-feather="alert-circle"></i>
-                    </center>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+
 <!-- Privacy Policy Modal -->
-<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+        <h5 class="modal-title">Privacy Policy</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -119,6 +95,8 @@
     </div>
   </div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+
+{% block scripts %}
 <script src="{% static 'js/index.js'%}"></script>
 {% endblock %}

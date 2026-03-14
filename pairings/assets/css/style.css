@@ -1,0 +1,271 @@
+/* EDH Pairings — UX improvements over Bootstrap defaults */
+
+/* Better body spacing */
+body {
+  padding-bottom: 2rem;
+}
+
+/* Navbar branding */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.navbar-brand img {
+  height: 28px;
+}
+
+/* Card panels for sections */
+.panel {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.panel-header h5 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Tournament status bar */
+.tournament-header {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.tournament-header h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.tournament-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tournament-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Pod cards */
+.pod-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.pod-card-header {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.pod-player-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pod-player-row:last-child {
+  border-bottom: none;
+}
+
+.pod-player-name {
+  font-weight: 500;
+}
+
+.pod-score-input {
+  width: 72px;
+  text-align: center;
+}
+
+.pod-score-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #6c757d;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* Buys section */
+.buys-card {
+  background: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.buys-card .buys-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.buys-card .buys-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Round tabs */
+.round-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.round-tabs .round-tab {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.375rem;
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #495057;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.round-tabs .round-tab:hover {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.round-tabs .round-tab.active {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+/* Round controls bar */
+.round-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Standings table improvements */
+.standings-table {
+  font-size: 0.9rem;
+}
+
+.standings-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.standings-table td {
+  vertical-align: middle;
+}
+
+/* Player list in registration */
+.player-list-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  font-weight: 600;
+}
+
+/* Registration input */
+.registration-input {
+  max-width: 400px;
+}
+
+/* Tournament list on index */
+.tournament-list-item td {
+  vertical-align: middle;
+}
+
+.tournament-list-item a {
+  font-weight: 500;
+}
+
+/* Confirmation buttons */
+.btn-action-primary {
+  font-weight: 600;
+}
+
+/* Score display */
+.score-display {
+  white-space: nowrap;
+}
+
+/* Responsive pods */
+@media (max-width: 576px) {
+  .pod-player-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .pod-score-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .pod-score-input {
+    flex: 1;
+  }
+
+  .round-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.empty-state svg {
+  margin-bottom: 0.75rem;
+  opacity: 0.4;
+}
