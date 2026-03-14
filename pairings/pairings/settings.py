@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "dj_rest_auth",
-    "constance.backends.database",
     "constance",
     "corsheaders",
     "django_extensions",
@@ -106,7 +105,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "pairings.context_processors.base_url",
             ]
         },
     }
