@@ -1,6 +1,6 @@
 function render_user_settings_modal() {
     $.ajax({
-        url: base_url + "api/v1/accounts/" + user_id + "/",
+        url: "/" + "api/v1/accounts/" + user_id + "/",
         headers: {
             Authorization: "Token " + auth_token,
         },
@@ -35,7 +35,7 @@ function reset_validation() {
 
 function push_user_settings() {
     $.post({
-        url: base_url + "api/v1/accounts/" + user_id + "/",
+        url: "/" + "api/v1/accounts/" + user_id + "/",
         headers: {
             Authorization: "Token " + auth_token,
         },

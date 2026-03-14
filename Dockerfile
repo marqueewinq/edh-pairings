@@ -1,17 +1,20 @@
-FROM    python:3.12
+FROM python:3.12
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update
-RUN apt-get install -y swig libssl-dev dpkg-dev netcat-openbsd
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+RUN apt-get update && \
+    apt-get install -y swig libssl-dev dpkg-dev netcat-openbsd
 
 WORKDIR /code
 
-ADD requirements.txt /code/
+COPY pyproject.toml uv.lock /code/
 
-RUN pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt
+RUN uv sync --frozen --no-dev
 
 COPY ./pairings/ /code/pairings/
 
-CMD ["gunicorn", "pairings.wsgi"]
+WORKDIR /code/pairings
+
+CMD ["uv", "run", "gunicorn", "pairings.wsgi"]

@@ -15,7 +15,7 @@ from rest_framework.response import Response
 
 
 class PlayerNameViewSet(viewsets.ModelViewSet):
-    queryset = PlayerName.objects.all().order_by("-date_created")
+    queryset = PlayerName.objects.all().order_by("-id")
     serializer_class = PlayerNameSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = "id"
@@ -144,14 +144,19 @@ class TournamentViewSet(viewsets.ModelViewSet):
     )
     def create_new_round_in_tournament(self, request, id=None):
         tournament = self.get_object()
+        player_names = [
+            player_name["name"]
+            for player_name in PlayerName.objects.filter(
+                tournament=tournament
+            ).values("name")
+        ]
+        if len(player_names) < 4:
+            raise exceptions.ValidationError(
+                detail="Tournament must have at least 4 players to create a round."
+            )
         tournament.data = Judge(config=tournament.judge_config).new_round(
             tournament.data,
-            [
-                player_name["name"]
-                for player_name in PlayerName.objects.filter(
-                    tournament=tournament
-                ).values("name")
-            ],
+            player_names,
         )
         tournament.save()
         return Response(self.get_serializer(tournament).data, status=status.HTTP_200_OK)

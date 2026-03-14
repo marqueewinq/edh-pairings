@@ -12,13 +12,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import json
 import os
-import typing as ty
+from pathlib import Path
 
 import dj_database_url
 import judge
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,7 +31,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost/")
 
-ALLOWED_HOSTS: ty.List[str] = [] + json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
+ALLOWED_HOSTS: list[str] = [] + json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
 CORS_ALLOWED_ORIGINS = json.loads(os.getenv("CORS_ALLOWED_ORIGINS", "[]"))
 
 LOGGING = {
@@ -69,7 +68,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    "rest_auth",
+    "dj_rest_auth",
     "constance.backends.database",
     "constance",
     "corsheaders",
@@ -156,39 +155,36 @@ TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = False
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = BASE_DIR / "static"
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "assets"),
-    # We do this so that django's collectstatic copies or our bundles to the
-    # STATIC_ROOT or syncs them to whatever storage we use.
-)
+STATICFILES_DIRS = (BASE_DIR / "assets",)
 
 # Authorization
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication"
-    ]
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
-REST_AUTH_SERIALIZERS = {"LOGIN_SERIALIZER": "accounts.serializers.LoginSerializer"}
+REST_AUTH = {"LOGIN_SERIALIZER": "accounts.serializers.LoginSerializer"}
 
 
 # Emails SMTP settings
 
-EMAIL_HOST = os.environ["EMAIL_HOST"]
-EMAIL_PORT = os.environ["EMAIL_PORT"]
-EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "25"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "noreply@edh.marqueewinq.xyz")
 
 # Constance

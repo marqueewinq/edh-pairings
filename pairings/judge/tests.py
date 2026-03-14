@@ -369,3 +369,11 @@ class JudgeV1UnitTestCase(TestCase):
 
         assert new_data[-1]["drop"] == ["George"]
         assert new_data[-1]["buys"] == ["George"]
+
+
+class JudgeUpdateResultValidationTest(TestCase):
+    def test_update_result_invalid_round_id_raises_value_error(self):
+        judge = Judge(config={})
+        data = judge.new_round(None, ["A", "B", "C", "D"])
+        with self.assertRaises(ValueError):
+            judge.update_result(data, player_name="A", round_id=99, score=[1, 0])

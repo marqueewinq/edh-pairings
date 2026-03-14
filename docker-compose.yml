@@ -11,7 +11,7 @@ x-environment: &shared-envvar
 
 services:
   db:
-    image: postgres:10
+    image: postgres:16
     environment:
       <<: *shared-envvar
     volumes:
@@ -24,22 +24,31 @@ services:
       <<: *shared-envvar
     env_file:
       - .env
-    # Docker hack to wait until Postgres is up, then run stuff.
     command: >
       bash -c "while ! nc -w 1 -z db 5432;
                do sleep 0.1;
                done;
-               ./manage.py migrate;
-               while :;
-               do ./manage.py runserver 0.0.0.0:80;
-               sleep 1;
-               done"
+               uv run python manage.py migrate;
+               uv run python manage.py collectstatic --noinput;
+               uv run gunicorn pairings.wsgi -b 0.0.0.0:8000"
+    volumes:
+      - ./pairings:/code/pairings
+      - ./pyproject.toml:/code/pyproject.toml:ro
+      - ./uv.lock:/code/uv.lock:ro
+      - static_files:/code/pairings/static
+    working_dir: /code/pairings
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
     ports:
       - "8010:80"
     volumes:
-      - ./pairings:/code
+      - ./misc/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_files:/static:ro
     depends_on:
-      - db
+      - web
 
   test:
     image: edhpairings
@@ -52,10 +61,16 @@ services:
       bash -c "while ! nc -w 1 -z db 5432;
                do sleep 0.1;
                done;
-               ./manage.py migrate;
-               ./manage.py test;
+               uv run python manage.py migrate;
+               uv run python manage.py test;
                "
     volumes:
-      - ./pairings:/code
+      - ./pairings:/code/pairings
+      - ./pyproject.toml:/code/pyproject.toml:ro
+      - ./uv.lock:/code/uv.lock:ro
+    working_dir: /code/pairings
     depends_on:
       - db
+
+volumes:
+  static_files:

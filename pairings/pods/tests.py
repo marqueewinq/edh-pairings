@@ -90,6 +90,22 @@ class IntegrationApiTest(test.APITestCase):
         )
         assert response.status_code == 204, response.json()
 
+    def test_create_round_with_less_than_4_players_returns_400(self):
+        tour = Tournament.objects.create(name="t1", owner=self.user)
+        for name in ["Alice", "Bob", "Cath"]:
+            self.client.post(
+                reverse("tournament-add-player-to-tournament", kwargs={"id": tour.id}),
+                {"player": {"name": name}},
+                headers={"Authorization": f"Token {self.token}"},
+                format="json",
+            )
+
+        response = self.client.post(
+            reverse("tournament-create-new-round-in-tournament", kwargs={"id": tour.id}),
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        assert response.status_code == 400, response.status_code
+
     def test_create_new_round_submit_result_to_tournament(self):
         PlayerName.objects.all().delete()
 
@@ -287,6 +303,18 @@ class PermissionTests(test.APITestCase):
             owner=None,
         )
 
+        # Add 4 players to each tournament so round creation succeeds
+        players = PlayerName.objects.bulk_create(
+            [PlayerName(name=f"P{i}") for i in range(4)]
+        )
+        for tour in [
+            self.user_tournament,
+            self.other_tournament,
+            self.admin_tournament,
+            self.legacy_tournament,
+        ]:
+            tour.players.set(players)
+
         logging.getLogger("django.request").setLevel(logging.ERROR)
 
     def _login_as(self, user):
@@ -471,3 +499,26 @@ class TournamentDeleteTests(test.APITestCase):
         )
         assert response.status_code == 401, response
         assert Tournament.objects.filter(id=self.user_tournament.id).exists()
+
+
+class PaginationTests(test.APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="pager", password="pager")
+        self.client.force_authenticate(user=self.user)
+        self.token = Token.objects.get(user=self.user).key
+        logging.getLogger("django.request").setLevel(logging.ERROR)
+
+    def test_tournament_list_is_paginated(self):
+        for i in range(25):
+            Tournament.objects.create(name=f"t{i}", owner=self.user)
+
+        response = self.client.get(
+            reverse("tournament-list"),
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "results" in data, f"Expected paginated response, got: {list(data.keys()) if isinstance(data, dict) else 'list'}"
+        assert len(data["results"]) == 20
+        assert data["count"] == 25
+        assert data["next"] is not None

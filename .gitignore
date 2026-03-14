@@ -93,5 +93,6 @@ static/
 dumps/
 
 todo-list.txt
+docs/
 .pytest_cache/
 .idea

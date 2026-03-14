@@ -46,7 +46,7 @@ function render_setting_modal() {
 
 function push_tournament_settings() {
     $.post({
-        url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+        url: "/" + "api/v1/tournaments/" + tournament.id + "/",
         headers: {
             Authorization: "Token " + auth_token,
         },

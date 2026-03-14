@@ -56,10 +56,7 @@ class AddPlayerToTournamentSerializer(serializers.Serializer):
     player = PlayerNameSerializer(required=True)
 
     def create(self, validated_data):
-        name = validated_data["player"]["name"]
-        player = PlayerName.objects.filter(name=name).first()
-        if player is None:
-            player = PlayerName.objects.create(name=name)
+        player, _ = PlayerName.objects.get_or_create(name=validated_data["player"]["name"])
         return player
 
 

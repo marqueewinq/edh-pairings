@@ -21,7 +21,7 @@ from django.urls import include, path
 # fmt: off
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("accounts/", include("rest_auth.urls")),
+    path("accounts/", include("dj_rest_auth.urls")),
     path('', include('pods.urls')),
     path('', include('frontend.urls')),
     path('', include('accounts.urls'))

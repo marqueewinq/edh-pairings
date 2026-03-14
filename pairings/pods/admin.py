@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.postgres import fields
+from django.db import models
 from django_json_widget.widgets import JSONEditorWidget
 from pods.models import PlayerName, Tournament
 
@@ -7,10 +7,9 @@ from pods.models import PlayerName, Tournament
 class TournamentAdmin(admin.ModelAdmin):
     raw_id_fields = ("players", "owner")
     formfield_overrides = {
-        fields.JSONField: {
+        models.JSONField: {
             "widget": JSONEditorWidget(options={"mode": "form"}, height=60)
-        },  # if django < 3.1
-        # models.JSONField: {"widget": JSONEditorWidget},
+        },
     }
 
 

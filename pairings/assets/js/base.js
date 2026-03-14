@@ -2,7 +2,7 @@ $("#button-login").click(function () {
     let username = $("#input-username").val();
     let password = $("#input-password").val();
     $.post({
-        url: base_url + "accounts/login/",
+        url: "/" + "accounts/login/",
         contentType: "application/json",
         data: JSON.stringify({
             username: username,
@@ -41,7 +41,7 @@ $("#button-login").click(function () {
 $("#button-logout").click(function () {
     $.ajax({
         method: "POST",
-        url: base_url + "accounts/logout/",
+        url: "/" + "accounts/logout/",
         headers: get_request_headers(),
         success: function (result) {
             location.reload();
@@ -61,7 +61,7 @@ $("#button-send-login-link").click(function () {
         .html("Sending...");
     $.ajax({
         method: "POST",
-        url: base_url + "api/v1/accounts/send-link/",
+        url: "/" + "api/v1/accounts/send-link/",
         data: JSON.stringify({
             email: email,
         }),

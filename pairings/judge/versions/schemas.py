@@ -22,10 +22,14 @@ class PodSchema(ma.Schema):
             if length is None:
                 length = len(score)
                 continue
-            assert length == len(score), scores
+            if length != len(score):
+                raise ma.ValidationError(f"All scores must have the same length, got {scores}")
 
     def validate(self, data):
-        assert len(data["players"]) == len(data["scores"])
+        if len(data["players"]) != len(data["scores"]):
+            raise ma.ValidationError(
+                f"players length ({len(data['players'])}) != scores length ({len(data['scores'])})"
+            )
 
 
 class RoundSchema(ma.Schema):

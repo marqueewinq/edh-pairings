@@ -74,7 +74,7 @@ function render_player_list(table_id, is_render_delete_btn) {
                                     .click(function () {
                                         $.ajax({
                                             url:
-                                                base_url +
+                                                "/" +
                                                 "api/v1/tournaments/" +
                                                 tournament.id +
                                                 "/add/",
@@ -360,7 +360,7 @@ function render_main_ongoing(is_running) {
                                         .click(function () {
                                             $.ajax({
                                                 url:
-                                                    base_url +
+                                                    "/" +
                                                     "api/v1/tournaments/" +
                                                     tournament.id +
                                                     "/drop/",
@@ -554,7 +554,7 @@ function render_main_ongoing(is_running) {
                                             );
                                             $.ajax({
                                                 url:
-                                                    base_url +
+                                                    "/" +
                                                     "api/v1/tournaments/" +
                                                     tournament.id +
                                                     "/submit/",
@@ -618,7 +618,7 @@ function render_main_ongoing(is_running) {
                                             );
                                             $.ajax({
                                                 url:
-                                                    base_url +
+                                                    "/" +
                                                     "api/v1/tournaments/" +
                                                     tournament.id +
                                                     "/submit/",
@@ -673,7 +673,7 @@ function render_tournament_detail() {
 
 function update_tournament_detail() {
     $.get({
-        url: base_url + "api/v1/tournaments/" + tournament_id + "/",
+        url: "/" + "api/v1/tournaments/" + tournament_id + "/",
         headers: get_request_headers(),
         success: function (result) {
             tournament = result;
@@ -693,7 +693,7 @@ $(document).ready(function () {
 
 $("#button-add").click(function () {
     $.post({
-        url: base_url + "api/v1/tournaments/" + tournament.id + "/add/",
+        url: "/" + "api/v1/tournaments/" + tournament.id + "/add/",
         headers: get_request_headers(),
         contentType: "application/json",
         data: JSON.stringify({
@@ -719,7 +719,7 @@ $("#button-add").click(function () {
 $("#next-phase-button").click(function () {
     if (tournament.status < 2) {
         $.ajax({
-            url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+            url: "/" + "api/v1/tournaments/" + tournament.id + "/",
             headers: {
                 Authorization: "Token " + auth_token,
             },
@@ -739,7 +739,7 @@ $("#next-phase-button").click(function () {
         });
     } else {
         $.ajax({
-            url: base_url + "api/v1/tournaments/" + tournament.id + "/",
+            url: "/" + "api/v1/tournaments/" + tournament.id + "/",
             headers: {
                 Authorization: "Token " + auth_token,
             },
@@ -762,7 +762,7 @@ $("#next-phase-button").click(function () {
 
 $("#button-new-round").click(function () {
     $.post({
-        url: base_url + "api/v1/tournaments/" + tournament.id + "/round/",
+        url: "/" + "api/v1/tournaments/" + tournament.id + "/round/",
         headers: get_request_headers(),
         success: function (result) {
             nav_index = parseInt(result.rounds.n_rounds);
@@ -778,7 +778,7 @@ $("#button-new-round").click(function () {
 
 $("#button-redo-pairings").click(function () {
     $.post({
-        url: base_url + "api/v1/tournaments/" + tournament.id + "/round/redo/",
+        url: "/" + "api/v1/tournaments/" + tournament.id + "/round/redo/",
         headers: get_request_headers(),
         success: function (result) {
             nav_index = parseInt(tournament.rounds.n_rounds);
@@ -805,7 +805,7 @@ function parse_textarea_into_player_names() {
 
 $("#tournament-list-textarea-update").click(function () {
     $.post({
-        url: base_url + "api/v1/tournaments/" + tournament.id + "/bulk-edit/",
+        url: "/" + "api/v1/tournaments/" + tournament.id + "/bulk-edit/",
         headers: get_request_headers(),
         contentType: "application/json",
         data: JSON.stringify({ players: parse_textarea_into_player_names() }),

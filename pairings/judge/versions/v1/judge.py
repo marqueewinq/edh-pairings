@@ -278,7 +278,8 @@ class Judge(AbstractJudge):
         if round_list is None:
             return
         round_list = RoundSchema(many=True).load(round_list)
-        assert round_id < len(round_list)
+        if round_id >= len(round_list):
+            raise ValueError(f"round_id {round_id} out of range (total rounds: {len(round_list)})")
 
         for pod_id, pod in enumerate(round_list[round_id]["pods"]):
             for idx, player_name_in_pod in enumerate(pod["players"]):
