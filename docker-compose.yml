@@ -12,6 +12,7 @@ x-environment: &shared-envvar
 services:
   db:
     image: postgres:16
+    restart: unless-stopped
     environment:
       <<: *shared-envvar
     volumes:
@@ -20,6 +21,7 @@ services:
   web:
     image: edhpairings
     build: .
+    restart: unless-stopped
     environment:
       <<: *shared-envvar
     env_file:
@@ -42,6 +44,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     ports:
       - "8010:80"
     volumes:
